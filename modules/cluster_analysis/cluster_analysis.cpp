@@ -1,21 +1,7 @@
 #include "cluster_analysis.h"
-#include <iostream>
 
 using namespace std;
 
-list<ClusterAnalysis::Category> ClusterAnalysis::initCategories(list<Stroke> strokes) {
-    list<ClusterAnalysis::Category> initCategories;
-    for (auto it = strokes.cbegin(); it != strokes.cend(); ++it) {
-        Stroke s = *it;
-        Point2f centerPt;
-        centerPt.x = 0;
-        centerPt.y = s.centerPt.y;
-        ClusterAnalysis::Category category;
-        category.strokes.push_front(s);
-        category.centerPt = centerPt;
-    }
-    return initCategories;
-}
 
 list<ClusterAnalysis::Category> ClusterAnalysis::getCategories(list<Stroke> strokes) {
 //    list<Category> initCategories = this->initCategories(strokes);

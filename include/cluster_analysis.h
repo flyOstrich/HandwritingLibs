@@ -21,8 +21,6 @@ private:
     const int MAX_ITERATION = 100;
     list<Category> categories;
 
-    list<Category> initCategories(list<Stroke> strokes);
-
     Point calculateCategoryCenterPoint(Category category);
 
     IterationResult genIterationResult(list<Stroke> strokes);
