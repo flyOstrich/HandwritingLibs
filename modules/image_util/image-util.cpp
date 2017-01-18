@@ -440,15 +440,19 @@ cv::Point Util::ImageConverter::getStrokeCenterPoint(cv::Mat &stroke, cv::Rect s
                                                      int bgColor) {
     Point centerPt;
     Mat sub;
-    float ct, pct;
+    float ct, pct,pct2,weight;
     Mat strokeRect = stroke.colRange(strokeBorder.x, strokeBorder.x + strokeBorder.width)
             .rowRange(strokeBorder.y, strokeBorder.y + strokeBorder.height);
     int colorCnt = Util::ImageConverter::getMatColorCount(strokeRect, bgColor);
     for (int i = 0; i <= strokeRect.rows; i++) {
         sub = strokeRect.rowRange(0, i);
         ct = ImageConverter::getMatColorCount(sub, bgColor);
+
         pct = ct / colorCnt;
-        if (pct >= 0.5) {
+        pct2=(float)i/strokeRect.rows;
+
+        weight=pct*0.6+pct2*0.4;
+        if (weight >= 0.5) {
             centerPt.y = i + strokeBorder.y;
             break;
         }
@@ -457,10 +461,31 @@ cv::Point Util::ImageConverter::getStrokeCenterPoint(cv::Mat &stroke, cv::Rect s
         sub = strokeRect.colRange(0, i);
         ct = ImageConverter::getMatColorCount(sub, bgColor);
         pct = ct / colorCnt;
-        if (pct >= 0.5) {
+        pct2=(float)i/strokeRect.cols;
+        weight=pct*0.6+pct2*0.4;
+        if (weight >= 0.5) {
             centerPt.x = i + strokeBorder.x;
             break;
         }
     }
     return centerPt;
+}
+
+cv::Rect Util::ImageConverter::getStrokeMainPartBorder(Point cpt,Rect border) {
+
+    Rect mainPartBorder;
+
+    int xLeftDis = std::abs(cpt.x - border.x);
+    int xRightDis = std::abs(cpt.x - (border.x + border.width));
+    int xRadius = std::min(xLeftDis, xRightDis);
+    mainPartBorder.width = xRadius * 2;
+    mainPartBorder.x = cpt.x - xRadius;
+
+    int yTopDis = std::abs(cpt.y - border.y);
+    int yBottomDis = std::abs(cpt.y - (border.y + border.height));
+    int yRadius = std::min(yBottomDis, yTopDis);
+    mainPartBorder.height = yRadius * 2;
+    mainPartBorder.y = cpt.y - yRadius;
+
+    return mainPartBorder;
 }

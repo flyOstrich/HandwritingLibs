@@ -4,6 +4,7 @@
 #include <vector>
 #include <cv.h>
 #include <list>
+#include <recognizer.h>
 
 namespace Util {
     class ImageConverter {
@@ -51,9 +52,11 @@ namespace Util {
         //将图片灰度化
         static cv::Mat getGrayImage(cv::Mat src);
 
-        //获取比划中点
-        static cv::Point getStrokeCenterPoint(cv::Mat &stroke, cv::Rect strokeBorder,int bgColor);
+        //获取笔画中心
+        static cv::Point getStrokeCenterPoint(cv::Mat &stroke, cv::Rect strokeBorder, int bgColor);
 
+        //获取笔画的主成分区域
+        static cv::Rect getStrokeMainPartBorder(Point cpt,Rect border);
     };
 
 }

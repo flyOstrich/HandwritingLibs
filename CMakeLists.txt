@@ -16,8 +16,12 @@ set(SOURCE_FILES main.cpp
                  modules/recognizer/recognizer.cpp
                  modules/image_util/image-util.cpp
                  modules/type_util/type-util.cpp
-                 modules/json_util/json_util.cpp modules/cluster_analysis/cluster_analysis.cpp)
+                 modules/json_util/json_util.cpp
+                 modules/cluster_analysis/cluster_analysis.cpp
+                 modules/painter/painter.cpp
+                 modules/trainer/trainer.cpp
+                 modules/android-interface.cpp modules/file_util/file-util.cpp)
 
 add_executable(HandwritingLibs ${SOURCE_FILES})
-set(OpenCV_LIBS opencv_core opencv_imgproc opencv_highgui opencv_imgcodecs)
+set(OpenCV_LIBS opencv_core opencv_imgproc opencv_highgui opencv_imgcodecs opencv_ml opencv_objdetect)
 target_link_libraries(HandwritingLibs ${OpenCV_LIBS})

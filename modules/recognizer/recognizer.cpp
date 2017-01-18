@@ -9,6 +9,7 @@ void Recognizer::pushStroke(Mat &stroke, string stroke_id) {
     int bgColor = ImageConverter::getImageBgColor(preProccessRes);
     Rect strokeBorder = ImageConverter::getImageBorderBox(preProccessRes, bgColor);
     Point centerPt = ImageConverter::getStrokeCenterPoint(preProccessRes, strokeBorder, bgColor);
+    Rect mainPartBorder = ImageConverter::getStrokeMainPartBorder(centerPt, strokeBorder);
 //    imshow("res",preProccessRes);
 //    waitKey(0);
     Stroke writingStroke;
@@ -17,23 +18,18 @@ void Recognizer::pushStroke(Mat &stroke, string stroke_id) {
     writingStroke.stroke_id = stroke_id;
     writingStroke.strokeBgColor = bgColor;
     writingStroke.centerPt = centerPt;
+    writingStroke.main_part_border = mainPartBorder;
 
-//    this->drawBorderForStroke(writingStroke);
+//    this->drawBorderForStroke(writingStroke,writingStroke.main_part_border);
 //    this->drawCenterPtForStroke(writingStroke);
 
     this->strokes.push_front(writingStroke);
 }
 
-void Recognizer::drawBorderForStroke(Stroke stroke) {
-    Rect border = stroke.stroke_border;
+void Recognizer::drawBorderForStroke(Stroke stroke,Rect border) {
     const Scalar color(150);//画笔颜色
     //画上边界
-    line(stroke.stroke_mat, Point(border.x, border.y), Point(border.x + border.width, border.y), color);
-    line(stroke.stroke_mat, Point(border.x, border.y), Point(border.x, border.y + border.height), color);
-    line(stroke.stroke_mat, Point(border.x + border.width, border.y),
-         Point(border.x + border.width, border.y + border.height), color);
-    line(stroke.stroke_mat, Point(border.x, border.y + border.height),
-         Point(border.x + border.width, border.y + border.height), color);
+    rectangle(stroke.stroke_mat,border,color);
 }
 
 void Recognizer::drawCenterPtForStroke(Stroke stroke) {
@@ -71,15 +67,15 @@ int Recognizer::calculateAvgRowHeight(list<Stroke> strokes) {
         }
     }
     if (cnt == 0)return 10;
-    else return total / cnt*0.8;
+    else return total / cnt * 0.8;
 }
 
 list<Row> Recognizer::getRows(list<Stroke> strokes) {
     struct Group {
-       list<Stroke> strokes;
+        list<Stroke> strokes;
 
     };
-    int averageHeight=this->calculateAvgRowHeight(strokes);
+    int averageHeight = this->calculateAvgRowHeight(strokes);
 
 }
 
