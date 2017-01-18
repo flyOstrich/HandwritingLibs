@@ -16,13 +16,24 @@ using namespace rapidjson;
 
 int main() {
 
+    /**
+     *
+     *
+     *    读取10000张图片生成并训练
+     *
+     *
+     */
     Trainer::ImageLoader imageLoader;
+    Trainer::HogComputer hogComputer;
     Util::FileUtil fileUtil;
     vector<string> files;
     fileUtil.getFiles("D:\\workspace\\HandwritingLibs\\assets\\t10k-images", files);
-    std::list<std::pair<int, cv::Mat> > res = imageLoader.loadImages(files);
-//     imageLoader.loadImages()
-
+    std::list<std::pair<int, cv::Mat> > img_list = imageLoader.loadImages(files);
+    std::list<std::pair<int, cv::Mat> > gradient_list = Trainer::HogComputer::getGradientList(
+            img_list);
+    std::pair<cv::Mat, cv::Mat> train_data = Trainer::HogComputer::convertGradientToMlFormat(
+            gradient_list);
+    hogComputer.trainSvm(train_data, "D:\\workspace\\HandwritingLibs\\assets\\train.yml");
 
 
 //    MouseHelper4OpenCV helper;

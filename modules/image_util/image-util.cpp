@@ -48,7 +48,7 @@ cv::Mat Util::ImageConverter::resize(cv::Mat &src, cv::Size size) {
 }
 
 cv::Mat Util::ImageConverter::removeEmptySpace(cv::Mat &src) {
-    Util::ImageConverter::printMatrix(src);
+//    Util::ImageConverter::printMatrix(src);
     int top = -1, bottom = -1, left = -1, right = -1;
     int step = 1;
     for (int i = 0; i < src.rows - step; i++) {

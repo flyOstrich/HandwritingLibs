@@ -16,8 +16,9 @@ std::list<std::pair<int, cv::Mat> > Trainer::HogComputer::getGradientList(
         std::pair<int, cv::Mat> img_pair = image_list.front();
         cv::Mat img = img_pair.second;
         int img_label = img_pair.first;
+
         cvtColor(img, gray, cv::COLOR_BGR2GRAY);
-        Util::ImageConverter::printMatrix(gray);
+//        Util::ImageConverter::printMatrix(gray);
         gradient_lst.push_back(std::pair<int, cv::Mat>(img_label
                 , Trainer::HogComputer::getHogDescriptorForImage(gray)));
         image_list.pop_front();
@@ -101,7 +102,10 @@ std::list<std::pair<int, cv::Mat> > Trainer::ImageLoader::loadImages(
         std::string label = img_file_name.substr(0, pos);
         int iLabel = atoi(label.c_str());
         this->imageLabels.push_back(iLabel);
-        image_list.push_back(std::pair<int, cv::Mat>(iLabel, cv::imread(img_file_name)));
+        Mat img=cv::imread(img_file_name);
+        img=Util::ImageConverter::removeEmptySpace(img);
+        img=Util::ImageConverter::thinImage(img);
+        image_list.push_back(std::pair<int, cv::Mat>(iLabel, img));
         image_path_list.pop_back();
     }
     return image_list;
