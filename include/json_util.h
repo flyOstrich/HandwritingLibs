@@ -10,8 +10,6 @@ using namespace std;
 using namespace rapidjson;
 
 class JsonUtil {
-private:
-	Document document;
 public:
-	list<Point> getPointListFromJsonString(string json_string);
+	static list<Point> getPointListFromJsonString(string json_string);
 };

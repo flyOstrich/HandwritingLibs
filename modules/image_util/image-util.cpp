@@ -49,15 +49,16 @@ cv::Mat Util::ImageConverter::resize(cv::Mat &src, cv::Size size) {
 
 cv::Mat Util::ImageConverter::removeEmptySpace(cv::Mat &src) {
 //    Util::ImageConverter::printMatrix(src);
+//    int bgColor = ImageConverter::getImageBgColor(src);
     int top = -1, bottom = -1, left = -1, right = -1;
     int step = 1;
     for (int i = 0; i < src.rows - step; i++) {
         cv::Mat tRange = src.rowRange(i, i + step);
         cv::Mat bRange = src.rowRange(src.rows - step - i, src.rows - i);
-        if (top == -1 && getColorCount(tRange, 255) > 0) {
+        if (top == -1 && getColorCount(tRange, 0) > 0) {
             top = i;
         }
-        if (bottom == -1 && getColorCount(bRange, 255) > 0) {
+        if (bottom == -1 && getColorCount(bRange, 0) > 0) {
             bottom = src.rows - i;
         }
         if (top != -1 && bottom != -1)break;
@@ -66,28 +67,27 @@ cv::Mat Util::ImageConverter::removeEmptySpace(cv::Mat &src) {
     for (int i = 0; i < src.cols - step; i++) {
         cv::Mat lRange = src.colRange(i, i + step);
         cv::Mat rRange = src.colRange(src.cols - step - i, src.cols - i);
-        if (left == -1 && getColorCount(lRange, 255) > 0) {
+        if (left == -1 && getColorCount(lRange, 0) > 0) {
             left = i;
         }
-        if (right == -1 && getColorCount(rRange, 255) > 0) {
+        if (right == -1 && getColorCount(rRange, 0) > 0) {
             right = src.cols - i;
         }
         if (left != -1 && right != -1)break;
     }
 
 //    LOGD("Cut Image : top->%d , bottom->%d ,left->%d,right->%d", top, bottom, left, right);
-    cv::Mat cutImg(cv::Size(bottom - top, right - left), CV_8UC1);
 
-    if (bottom - top < 28) {
-        bottom + 14 > src.rows ? bottom = src.rows : bottom += 14;
-        top - 14 < 0 ? top = 0 : top -= 14;
+    if (bottom - top < TRAIN_IMAGE_SIZE.height) {
+        bottom +  TRAIN_IMAGE_SIZE.height/2 > src.rows ? bottom = src.rows : bottom += TRAIN_IMAGE_SIZE.height/2 ;
+        top - TRAIN_IMAGE_SIZE.height/2  < 0 ? top = 0 : top -= TRAIN_IMAGE_SIZE.height/2 ;
     }
-    if (right - left < 28) {
-        left - 14 < 0 ? left = 0 : left -= 14;
-        right + 14 > src.cols ? right = src.cols : right += 14;
+    if (right - left < TRAIN_IMAGE_SIZE.width) {
+        left - TRAIN_IMAGE_SIZE.width/2 < 0 ? left = 0 : left -= TRAIN_IMAGE_SIZE.width/2;
+        right + TRAIN_IMAGE_SIZE.width/2 > src.cols ? right = src.cols : right += TRAIN_IMAGE_SIZE.width/2;
     }
 //    LOGD("Cut Image : top->%d , bottom->%d ,left->%d,right->%d", top, bottom, left, right);
-
+    cv::Mat cutImg(cv::Size(bottom - top, right - left), CV_8UC1);
     cv::Mat temp = src.rowRange(top, bottom).colRange(left, right);
     temp.copyTo(cutImg);
     return cutImg;

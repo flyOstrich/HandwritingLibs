@@ -19,7 +19,8 @@ void Util::FileUtil::getFiles(string path, vector<string> &files) {
             }
             else
             {
-                files.push_back(p.assign(path).append("\\").append(fileinfo.name) );
+//                files.push_back(p.assign(path).append("\\").append(fileinfo.name) );
+                files.push_back(fileinfo.name);
             }
         }while(_findnext(hFile, &fileinfo)  == 0);
         _findclose(hFile);

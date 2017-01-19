@@ -4,7 +4,7 @@
 #include <vector>
 #include <list>
 
-#define TRAIN_IMAGE_SIZE  cv::Size(56,56)
+
 namespace Trainer {
     class HogComputer {
     public:
@@ -27,6 +27,7 @@ namespace Trainer {
         std::vector<int> imageLabels;
     public:
         std::list<std::pair<int, cv::Mat> > loadImages(std::vector<std::string> image_path_list, std::string dir);
+
         std::list<std::pair<int, cv::Mat> > loadImages(std::vector<std::string> image_path_list);
     };
 }

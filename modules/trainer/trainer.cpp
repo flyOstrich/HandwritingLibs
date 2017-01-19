@@ -51,30 +51,18 @@ void Trainer::HogComputer::trainSvm(std::pair<cv::Mat, cv::Mat> train_data,
     cv::Ptr<cv::ml::SVM> svm = cv::ml::SVM::create();
     cv::Mat train_data_mat = train_data.second;
     cv::Mat train_data_labels = train_data.first;
-    /* Default values to train SVM */
-//    svm->setTermCriteria(cv::TermCriteria( CV_TERMCRIT_ITER+CV_TERMCRIT_EPS, 1000, 1e-3 ));
+
     svm->setKernel(cv::ml::SVM::LINEAR  );
-    svm->setType(
-            cv::ml::SVM::NU_SVC); // C_SVC; // EPSILON_SVR; // may be also NU_SVR; // do regression task
-    svm->setNu(0.5);
+    svm->setType(cv::ml::SVM::C_SVC); // C_SVC; // EPSILON_SVR; // may be also NU_SVR; // do regression task
     svm->train(train_data_mat, cv::ml::ROW_SAMPLE, train_data_labels);
-    LOGD("method trainSvm save %s",trained_result_location.c_str());
+
     svm->save(trained_result_location);
     int p;
     for (int i = 0; i < train_data_labels.rows; i++) {
         cv::Mat test_row = train_data_mat.row(i);
         p = svm->predict(test_row);
+        cout<<p<<endl;
     }
-    ifstream labelCharacterData(trained_result_location.c_str());
-    string buf;
-    string lrl = "";
-    while (labelCharacterData) {
-        if (getline(labelCharacterData, buf)) {
-            lrl += buf + "\n";
-        }
-    }
-    int b = 2;
-
 }
 
 std::list<std::pair<int, cv::Mat> > Trainer::ImageLoader::loadImages(

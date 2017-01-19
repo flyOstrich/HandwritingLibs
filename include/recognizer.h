@@ -1,70 +1,55 @@
 #pragma once
 
 #include <iostream>
-#include <list>
-#include <opencv2/opencv.hpp>
+#include "cluster_analysis.h"
 
-#define RECOGNIZE_SIZE Size(1024,768)
-
-using namespace std;
-using namespace cv;
-struct Stroke {
-    string stroke_id;
-    //笔画边界
-    Rect stroke_border;
-    //主成分边界
-    Rect main_part_border;
-    Mat stroke_mat;
-    Point centerPt;
-    int strokeBgColor = -1;
-};
-/**
- * 由一些笔画组成的识别单元，单元内包含的笔画之间可能满足以下几个关系
- *   1.笔画之间相交
- *   2.笔画之间满足分数的形式
- *   3.笔画之间满足指数的形式
- */
-struct RecognizeUnit {
-    list<Stroke> strokes;
-    Rect main_part_border;
-    Point centerPt;
-};
-struct Category {
-    Point2f centerPt;
-    list<Stroke> strokes;
-    list<RecognizeUnit> recognize_units;
-};
-struct Row {
-    int row_index;
-    list<Stroke> strokes;
-    Rect row_border;
-};
 
 class Recognizer {
 private:
-    list<Stroke> strokes;
+    ClusterAnalysis clusterAnalyzer;
+    Ptr<ml::SVM> svm;
+
 public:
+    Recognizer();
+
+    Recognizer(string svmModelFile, Size canvasSize);
+
+    list<Stroke> strokes;
+
+    Size canvasSize;
+
     enum RECOGNIZE_STATUS {
         RECOGNIZE_START,
         RECOGNIZE_CONTINUE,
         RECOGNIZE_RESET
     };
 
-    void pushStroke(Mat &stroke, string stroke_id);
+    enum RECOGNIZE_MAT_TYPE {
+        RECOGNIZE_ORIGINAL_STROKE_MAT = 0,
+        RECOGNIZE_RESIZED_STROKE_MAT = 1,
+    };
 
-    void drawBorderForStroke(Stroke stroke,Rect border);
+    void pushStroke(list<Point> original_points, string stroke_id);
+
+    void drawBorderForStroke(Stroke stroke, Rect border);
 
     void drawCenterPtForStroke(Stroke stroke);
+
+    /*************************************************
+      Function:       getCategories
+      Description:    对canvas上的原始点进行缩放
+      Input:          original_points  原始点列表
+      Input:          original_size  原始点阵的大小
+      Input:          target_size    目标点阵大小
+      Return:         缩放后的点列表
+      *************************************************/
+    list<Point> resizeOriginalPoints(list<Point> original_points, Size original_size, Size target_size);
 
     Mat combineStrokeMat(list<Stroke> strokes);
 
     //计算平均每行的高度
     int calculateAvgRowHeight(list<Stroke> strokes);
 
-    //将所有的比划信息进行分行(聚类)
-    list<Row> getRows(list<Stroke> strokes);
+    list<list<int> > recognize();
 
-    list<Stroke> getStrokes();
-
-    list<pair<int, int> > recognizeRows(Stroke recognizingImg);
 };

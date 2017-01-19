@@ -1,9 +1,10 @@
 #include <opencv2/opencv.hpp>
 #include "json_util.h"
-#include "mat_util.h"
+#include "mat-util.h"
 #include "recognizer.h"
 #include "type-util.h"
 #include <fstream>
+#include <image-util.h>
 #include "cluster_analysis.h"
 #include "painter.h"
 #include "trainer.h"
@@ -13,88 +14,37 @@ using namespace cv;
 using namespace std;
 using namespace rapidjson;
 
+//用手写板手写并识别
+void draw_and_recognize() {
+    string stroke_file="D:\\workspace\\HandwritingLibs\\assets\\painter_stroke.txt";
+    string svm_model_file="D:\\workspace\\HandwritingLibs\\assets\\train.yml";
+    MouseHelper4OpenCV helper(stroke_file);
+    Mat res = helper.MouseDraw("开始画画吧", Mat(400, 400, CV_8UC3, Scalar(0,0,0)), Scalar(255,255,255), 1);
+
+    Recognizer recognizer(svm_model_file, Size(400, 400));
+    ifstream in(stroke_file);
+    if (!in.is_open()) {
+        cout << "open file error" << endl;
+    }
+    char buf[6000];
+    int idx = 0;
+    while (!in.eof()) {
+        idx++;
+        in.getline(buf, 6000);
+        string s = buf;
+        if (s.length() == 0)continue;
+        list<Point> stroke_points = JsonUtil::getPointListFromJsonString(s);
+        recognizer.pushStroke(stroke_points, "aaaaa" + idx);
+    }
+    recognizer.recognize();
+    Mat final = recognizer.combineStrokeMat(recognizer.strokes);
+    imshow("result", final);
+    waitKey(0);
+}
 
 int main() {
 
-    /**
-     *
-     *
-     *    读取10000张图片生成并训练
-     *
-     *
-     */
-    Trainer::ImageLoader imageLoader;
-    Trainer::HogComputer hogComputer;
-    Util::FileUtil fileUtil;
-    vector<string> files;
-    fileUtil.getFiles("D:\\workspace\\HandwritingLibs\\assets\\t10k-images", files);
-    std::list<std::pair<int, cv::Mat> > img_list = imageLoader.loadImages(files);
-    std::list<std::pair<int, cv::Mat> > gradient_list = Trainer::HogComputer::getGradientList(
-            img_list);
-    std::pair<cv::Mat, cv::Mat> train_data = Trainer::HogComputer::convertGradientToMlFormat(
-            gradient_list);
-    hogComputer.trainSvm(train_data, "D:\\workspace\\HandwritingLibs\\assets\\train.yml");
-
-
-//    MouseHelper4OpenCV helper;
-
-//    Mat res = helper.MouseDraw ("开始画画吧",Mat(400,400,CV_8UC3,Scalar(0,0,0)),Scalar(255,255,255),1);
-
-//    imwrite ("d:\\test.jpg",res); //保存画画的图像到test.jpg
-//    Mat res = Mat::zeros(400, 400, CV_8UC1);
-//    string winName = "testWin";
-//    imshow(winName, res);
-//    setMouseCallback(winName, onMouse);
-
-
-//    waitKey(0);
-
-//    Recognizer recognizer;
-//    ifstream in("D:\\workspace\\HandwritingLibs\\assets\\strokes4.txt");
-//    if (!in.is_open()) {
-//        cout << "open file error" << endl;
-//    }
-//    char buf[6000];
-//    int idx = 0;
-//    while (!in.eof()) {
-//        idx++;
-//        in.getline(buf, 6000);
-//        string s = buf;
-//        Mat result = MatUtil::getGrayImageFromJsonString(s, Size(400, 400));
-//        recognizer.pushStroke(result, "aaaaa" + idx);
-//    }
-//    int height = recognizer.calculateAvgRowHeight(recognizer.getStrokes());
-//    ClusterAnalysis clusterAnalysis;
-//    clusterAnalysis.cluster_max_height = height;
-//    list<Category> categories = clusterAnalysis.getRecognizeUnitsForCategories(recognizer.getStrokes());
-//    Mat final = recognizer.combineStrokeMat(recognizer.getStrokes());
-//    int i = 0;
-//    for (auto it = categories.cbegin(); it != categories.cend(); ++it) {
-//        int j = 0;
-//        i++;
-//        Category category = *it;
-//        list<RecognizeUnit> units = category.recognize_units;
-//        for (auto it2 = units.cbegin(); it2 != units.cend(); ++it2) {
-//            j++;
-//            string winName="result"+Util::TypeConverter::int2String(i)+Util::TypeConverter::int2String(j);
-//            RecognizeUnit unit = *it2;
-//            imshow(winName, recognizer.combineStrokeMat(unit.strokes));
-//            moveWindow(winName,j*200,i*200);
-//        }
-//    }
-//    imshow("result", final);
-//    waitKey(0);
-
-
-
-//    list<Stroke> strokes = recognizer.getStrokes();
-//    Mat res = Mat::zeros(strokes.front().stroke_mat.rows, strokes.front().stroke_mat.cols, CV_8UC1);
-//    while (!strokes.empty()) {
-//        Stroke st = strokes.front();
-//        imshow("result", st.stroke_mat);
-//        strokes.pop_front();
-//        waitKey(1000);
-//    }
+    draw_and_recognize();
 
     return 0;
 }

@@ -15,21 +15,33 @@
 #include <opencv2/opencv.hpp>
 #include <fstream>
 #include <iostream>
+
 using namespace std;
 
 class MouseHelper4OpenCV {
+
 public:
-    MouseHelper4OpenCV();
+    MouseHelper4OpenCV(string stroke_file);
+    string stroke_file;
     cv::Mat MouseDraw(cv::Mat img);
-    cv::Mat MouseDraw(const std::string& windowName, cv::Mat img, cv::Scalar color, int border);
-    struct handlerT{
+
+    cv::Mat MouseDraw(const std::string &windowName, cv::Mat img, cv::Scalar color, int border);
+
+    struct handlerT {
         bool isDrawing;
+        string stroke_file;
         std::vector<cv::Point> points;
         cv::Mat image;
-        handlerT(): isDrawing(false) {};
-    }params;
+
+        void save_stroke();
+
+        handlerT() : isDrawing(false) {};
+    } params;
+
 private:
     static void mouseHandler(int event, int x, int y, int flags, void *param);
-    void opencv_mouse_callback( int event, int x, int y, int , void *param );
+
+    void opencv_mouse_callback(int event, int x, int y, int, void *param);
 };
+
 #endif // BOXEXTRACTOR_H
