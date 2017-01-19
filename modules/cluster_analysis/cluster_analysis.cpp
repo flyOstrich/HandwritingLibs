@@ -2,6 +2,10 @@
 
 using namespace std;
 
+// comparison, not case sensitive.
+bool sort_category_fn(const Category &first, const Category &second) {
+    return first.centerPt.y < second.centerPt.y;
+}
 
 list<Category> ClusterAnalysis::getCategories(list<Stroke> strokes) {
     RecognizeCategoryIterationObject iterationResult = this->genCategoryIterationObject(strokes);
@@ -13,12 +17,19 @@ list<Category> ClusterAnalysis::getCategories(list<Stroke> strokes) {
         categories.push_front(iterationResult.category);
         iterationResult = this->genCategoryIterationObject(rest_strokes);
     } while (rest_strokes.size() > 0);
+    categories.sort(sort_category_fn);
     return categories;
 }
 
+// comparison, not case sensitive.
+bool sort_recognize_unit_fn(const RecognizeUnit &first, const RecognizeUnit &second) {
+    return first.main_part_border.x < second.main_part_border.x;
+}
+
+
 list<Category> ClusterAnalysis::getRecognizeUnitsForCategories(list<Stroke> ori_strokes) {
     list<Category> res;
-    list<Category> categories=this->getCategories(ori_strokes);
+    list<Category> categories = this->getCategories(ori_strokes);
     for (auto it = categories.cbegin(); it != categories.cend(); ++it) {
         Category category = *it;
         list<Stroke> strokes = category.strokes;
@@ -31,8 +42,9 @@ list<Category> ClusterAnalysis::getRecognizeUnitsForCategories(list<Stroke> ori_
             recognizeUnits.push_front(iterationObject.recognize_unit);
             iterationObject = this->genRecognizeUnitIterationObject(rest_strokes);
         } while (rest_strokes.size() > 0);
+        recognizeUnits.sort(sort_recognize_unit_fn);
         category.recognize_units = recognizeUnits;
-        res.push_front(category);
+        res.push_back(category);
     }
     return res;
 }

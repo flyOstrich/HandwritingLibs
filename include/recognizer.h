@@ -2,19 +2,21 @@
 
 #include <iostream>
 #include "cluster_analysis.h"
-
+#include <rapidjson/document.h>
+using namespace rapidjson;
 
 class Recognizer {
 private:
     ClusterAnalysis clusterAnalyzer;
     Ptr<ml::SVM> svm;
-
 public:
     Recognizer();
 
-    Recognizer(string svmModelFile, Size canvasSize);
+    Recognizer(string svm_model_file, string label_character_map_file, Size canvas_size);
 
     list<Stroke> strokes;
+
+    string label_character_map;
 
     Size canvasSize;
 
@@ -50,6 +52,6 @@ public:
     //计算平均每行的高度
     int calculateAvgRowHeight(list<Stroke> strokes);
 
-    list<list<int> > recognize();
+    list<list<string> > recognize();
 
 };

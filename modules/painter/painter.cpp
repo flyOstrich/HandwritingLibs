@@ -7,17 +7,17 @@ using namespace rapidjson;
 using namespace cv;
 
 MouseHelper4OpenCV::MouseHelper4OpenCV(string stroke_file) {
+    ofstream ofs(stroke_file);
+    ofs << "";
+    ofs.close();
     this->params.stroke_file = stroke_file;
 }
 
 void MouseHelper4OpenCV::handlerT::save_stroke() {
     printf("save stroke");
-
     ofstream ofs(this->stroke_file, ios::app);
     StringBuffer s;
     Writer<StringBuffer> writer(s);
-//    writer.StartObject();
-//    writer.Key("a");
     writer.StartArray();
     for (auto it = this->points.cbegin(); it != this->points.cend(); ++it) {
         Point pt = *it;
@@ -29,33 +29,9 @@ void MouseHelper4OpenCV::handlerT::save_stroke() {
         writer.EndObject();
     }
     writer.EndArray();
-//    writer.EndObject();
-
-//    writer.StartObject();               // Between StartObject()/EndObject(),
-//    writer.Key("hello");                // output a key,
-//    writer.String("world");             // follow by a value.
-//    writer.Key("t");
-//    writer.Bool(true);
-//    writer.Key("f");
-//    writer.Bool(false);
-//    writer.Key("n");
-//    writer.Null();
-//    writer.Key("i");
-//    writer.Uint(123);
-//    writer.Key("pi");
-//    writer.Double(3.1416);
-//    writer.Key("a");
-//    writer.StartArray();                // Between StartArray()/EndArray(),
-//    for (unsigned i = 0; i < 4; i++)
-//        writer.Uint(i);                 // all values are elements of the array.
-//    writer.EndArray();
-//    writer.EndObject();
-
-    // {"hello":"world","t":true,"f":false,"n":null,"i":123,"pi":3.1416,"a":[0,1,2,3]}
-    cout << s.GetString() << endl;
+//    cout << s.GetString() << endl;
     ofs << s.GetString() << endl;
     ofs.close();
-
 }
 
 void MouseHelper4OpenCV::mouseHandler(int event, int x, int y, int flags, void *param) {

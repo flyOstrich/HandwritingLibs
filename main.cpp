@@ -18,10 +18,11 @@ using namespace rapidjson;
 void draw_and_recognize() {
     string stroke_file="D:\\workspace\\HandwritingLibs\\assets\\painter_stroke.txt";
     string svm_model_file="D:\\workspace\\HandwritingLibs\\assets\\train.yml";
+    string label_character_map_file="D:\\workspace\\HandwritingLibs\\modules\\trainer\\label_character_map.txt";
     MouseHelper4OpenCV helper(stroke_file);
     Mat res = helper.MouseDraw("开始画画吧", Mat(400, 400, CV_8UC3, Scalar(0,0,0)), Scalar(255,255,255), 1);
 
-    Recognizer recognizer(svm_model_file, Size(400, 400));
+    Recognizer recognizer(svm_model_file,label_character_map_file, Size(400, 400));
     ifstream in(stroke_file);
     if (!in.is_open()) {
         cout << "open file error" << endl;
@@ -37,8 +38,8 @@ void draw_and_recognize() {
         recognizer.pushStroke(stroke_points, "aaaaa" + idx);
     }
     recognizer.recognize();
-    Mat final = recognizer.combineStrokeMat(recognizer.strokes);
-    imshow("result", final);
+//    Mat final = recognizer.combineStrokeMat(recognizer.strokes);
+//    imshow("result", final);
     waitKey(0);
 }
 
