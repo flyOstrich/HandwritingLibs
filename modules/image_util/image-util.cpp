@@ -79,12 +79,12 @@ cv::Mat Util::ImageConverter::removeEmptySpace(cv::Mat &src) {
 //    LOGD("Cut Image : top->%d , bottom->%d ,left->%d,right->%d", top, bottom, left, right);
 
     if (bottom - top < TRAIN_IMAGE_SIZE.height) {
-        bottom +  TRAIN_IMAGE_SIZE.height/2 > src.rows ? bottom = src.rows : bottom += TRAIN_IMAGE_SIZE.height/2 ;
-        top - TRAIN_IMAGE_SIZE.height/2  < 0 ? top = 0 : top -= TRAIN_IMAGE_SIZE.height/2 ;
+        bottom + TRAIN_IMAGE_SIZE.height / 2 > src.rows ? bottom = src.rows : bottom += TRAIN_IMAGE_SIZE.height / 2;
+        top - TRAIN_IMAGE_SIZE.height / 2 < 0 ? top = 0 : top -= TRAIN_IMAGE_SIZE.height / 2;
     }
     if (right - left < TRAIN_IMAGE_SIZE.width) {
-        left - TRAIN_IMAGE_SIZE.width/2 < 0 ? left = 0 : left -= TRAIN_IMAGE_SIZE.width/2;
-        right + TRAIN_IMAGE_SIZE.width/2 > src.cols ? right = src.cols : right += TRAIN_IMAGE_SIZE.width/2;
+        left - TRAIN_IMAGE_SIZE.width / 2 < 0 ? left = 0 : left -= TRAIN_IMAGE_SIZE.width / 2;
+        right + TRAIN_IMAGE_SIZE.width / 2 > src.cols ? right = src.cols : right += TRAIN_IMAGE_SIZE.width / 2;
     }
 //    LOGD("Cut Image : top->%d , bottom->%d ,left->%d,right->%d", top, bottom, left, right);
     cv::Mat cutImg(cv::Size(bottom - top, right - left), CV_8UC1);
@@ -391,6 +391,19 @@ int Util::ImageConverter::getMatColorCount(cv::Mat src, int bgColor) {
     return getColorCount(src, bgColor);
 }
 
+cv::Rect Util::ImageConverter::getImageBorderBox(list<Point> image_stroke_points) {
+    int left = -1, right = -1, top = -1, bottom = -1;
+    Point pt;
+    for (auto it = image_stroke_points.cbegin(); it != image_stroke_points.cend(); ++it) {
+        pt = *it;
+        left == -1 ? left = pt.x : left = std::min(left, pt.x);
+        right == -1 ? right = pt.x : right = std::max(right, pt.x);
+        top == -1 ? top = pt.y : top = std::min(top, pt.y);
+        bottom == -1 ? bottom = pt.y : bottom = std::max(bottom, pt.y);
+    }
+    Rect res(left, top, right - left, bottom - top);
+    return res;
+}
 
 cv::Rect Util::ImageConverter::getImageBorderBox(cv::Mat src, int bgColor) {
     int width = src.cols;
@@ -440,7 +453,7 @@ cv::Point Util::ImageConverter::getStrokeCenterPoint(cv::Mat &stroke, cv::Rect s
                                                      int bgColor) {
     Point centerPt;
     Mat sub;
-    float ct, pct,pct2,weight;
+    float ct, pct, pct2, weight;
     Mat strokeRect = stroke.colRange(strokeBorder.x, strokeBorder.x + strokeBorder.width)
             .rowRange(strokeBorder.y, strokeBorder.y + strokeBorder.height);
     int colorCnt = Util::ImageConverter::getMatColorCount(strokeRect, bgColor);
@@ -449,9 +462,9 @@ cv::Point Util::ImageConverter::getStrokeCenterPoint(cv::Mat &stroke, cv::Rect s
         ct = ImageConverter::getMatColorCount(sub, bgColor);
 
         pct = ct / colorCnt;
-        pct2=(float)i/strokeRect.rows;
+        pct2 = (float) i / strokeRect.rows;
 
-        weight=pct*0.6+pct2*0.4;
+        weight = pct * 0.6 + pct2 * 0.4;
         if (weight >= 0.5) {
             centerPt.y = i + strokeBorder.y;
             break;
@@ -461,8 +474,8 @@ cv::Point Util::ImageConverter::getStrokeCenterPoint(cv::Mat &stroke, cv::Rect s
         sub = strokeRect.colRange(0, i);
         ct = ImageConverter::getMatColorCount(sub, bgColor);
         pct = ct / colorCnt;
-        pct2=(float)i/strokeRect.cols;
-        weight=pct*0.6+pct2*0.4;
+        pct2 = (float) i / strokeRect.cols;
+        weight = pct * 0.6 + pct2 * 0.4;
         if (weight >= 0.5) {
             centerPt.x = i + strokeBorder.x;
             break;
@@ -471,7 +484,7 @@ cv::Point Util::ImageConverter::getStrokeCenterPoint(cv::Mat &stroke, cv::Rect s
     return centerPt;
 }
 
-cv::Rect Util::ImageConverter::getStrokeMainPartBorder(Point cpt,Rect border) {
+cv::Rect Util::ImageConverter::getStrokeMainPartBorder(Point cpt, Rect border) {
 
     Rect mainPartBorder;
 

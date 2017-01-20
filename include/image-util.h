@@ -49,6 +49,9 @@ namespace Util {
         //获取图片的边界
         static cv::Rect getImageBorderBox(cv::Mat src, int bgColor);
 
+        //获取图片的边界
+        static cv::Rect getImageBorderBox(list<Point> image_stroke_points);
+
         //将图片灰度化
         static cv::Mat getGrayImage(cv::Mat src);
 

@@ -12,7 +12,7 @@ struct Stroke {
     //原canvas大小的笔画矩阵
     Mat stroke_mat;
     //缩放后的的笔画矩阵（用于SVM model识别）
-    Mat resized_stroke_mat;
+//    Mat resized_stroke_mat;
     Point centerPt;
     int strokeBgColor = -1;
     //画布上该笔画走过的点的列表
