@@ -1,11 +1,8 @@
-#include <opencv2/opencv.hpp>
 #include "json_util.h"
-#include "mat-util.h"
 #include "recognizer.h"
 #include "type-util.h"
 #include <fstream>
 #include <image-util.h>
-#include "cluster_analysis.h"
 #include "painter.h"
 #include "trainer.h"
 #include "file-util.h"
@@ -38,13 +35,30 @@ void draw_and_recognize() {
         recognizer.pushStroke(stroke_points, "aaaaa" + idx);
     }
     recognizer.recognize();
-//    Mat final = recognizer.combineStrokeMat(recognizer.strokes);
-//    imshow("result", final);
+    Mat final = recognizer.combineStrokeMat(recognizer.strokes);
+    imshow("result", final);
     waitKey(0);
+//    cv::ml::RTrees::Flags::PREDICT_SUM
+}
+
+void train(){
+    Trainer::ImageLoader imageLoader;
+    Trainer::HogComputer hogComputer;
+    Util::FileUtil fileUtil;
+    vector<string> files;
+    fileUtil.getFiles("D:/workspace/HandwritingLibs/assets/train-images", files);
+    char *dir = "D:/workspace/HandwritingLibs/assets/train-images";
+    std::list<std::pair<int, cv::Mat> > img_list = imageLoader.loadImages(files, dir);
+    std::list<std::pair<int, cv::Mat> > gradient_list = Trainer::HogComputer::getGradientList(
+            img_list);
+    std::pair<cv::Mat, cv::Mat> train_data = Trainer::HogComputer::convertGradientToMlFormat(
+            gradient_list);
+    Util::ImageConverter::printMatrix(train_data.first);
+    hogComputer.trainSvm(train_data, "D:\\workspace\\HandwritingLibs\\assets\\train.yml");
 }
 
 int main() {
-
+    train();
     draw_and_recognize();
 
     return 0;

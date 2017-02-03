@@ -9,7 +9,7 @@ using namespace rapidjson;
 class Recognizer {
 private:
     ClusterAnalysis clusterAnalyzer;
-    Ptr<ml::SVM> svm;
+    Ptr<ml::RTrees> svm;
 public:
     Recognizer();
 
@@ -54,9 +54,17 @@ public:
                          合并后的图像矩阵大小为能包围所有笔画的最小外界矩形的大小
          Input:          strokes  笔画路径数据
          Input:          target_size 合并后目标图像的大小
-         Return:         缩放后的点列表
+         Return:         合并后的图像
     *************************************************/
-    Mat combineStrokeMat(list<Stroke> strokes,Size target_size);
+    Mat combineStrokeMat(list<Stroke> strokes, Size target_size);
+
+    /*************************************************
+     Function:       combineStrokeMat
+     Description:    合并笔画数据,并生成合并后的图像矩阵
+     Input:          strokes  笔画路径数据
+     Return:         合并后的图像
+    *************************************************/
+    Mat combineStrokeMat(list<Stroke> strokes);
 
     //计算平均每行的高度
     int calculateAvgRowHeight(list<Stroke> strokes);
