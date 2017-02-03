@@ -2,7 +2,7 @@
 
 #include "common.h"
 
-#define RECOGNIZE_SIZE Size(1024,768)
+
 struct Stroke {
     string stroke_id;
     //笔画边界

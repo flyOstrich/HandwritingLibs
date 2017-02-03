@@ -1,3 +1,4 @@
+#include "opencv2/ml.hpp"
 #include "recognizer.h"
 #include "image-util.h"
 #include "type-util.h"
@@ -14,7 +15,7 @@ Recognizer::Recognizer() {}
 
 Recognizer::Recognizer(string svm_model_file, string label_character_map_file, Size canvas_size) {
     Document document;
-    this->svm = ml::StatModel::load<ml::SVM>(svm_model_file.c_str());
+    this->svm = ml::StatModel::load<ml::RTrees>(svm_model_file.c_str());
     this->canvasSize = canvas_size;
     this->label_character_map = "";
     ifstream ifs(label_character_map_file);
@@ -35,7 +36,7 @@ Recognizer::Recognizer(string svm_model_file, string label_character_map_file, S
 void Recognizer::pushStroke(list<Point> original_points, string stroke_id) {
     Mat preProccessRes = MatUtil::getGrayImageFromPointList(original_points, this->canvasSize);
     int bgColor = ImageConverter::getImageBgColor(preProccessRes);
-    Rect stroke_border = ImageConverter::getImageBorderBox(original_points);
+    Rect stroke_border = ImageConverter::getImageBorderBox(preProccessRes,bgColor  );
     Point centerPt = ImageConverter::getStrokeCenterPoint(preProccessRes, stroke_border, bgColor);
     Rect mainPartBorder = ImageConverter::getStrokeMainPartBorder(centerPt, stroke_border);
 //    list<Point> resized_points = this->resizeOriginalPoints(original_points, this->canvasSize, TRAIN_IMAGE_SIZE);
@@ -51,9 +52,8 @@ void Recognizer::pushStroke(list<Point> original_points, string stroke_id) {
     writingStroke.original_points = original_points;
 //    writingStroke.resized_stroke_mat = resized_stroke_mat;
 
-//    this->drawBorderForStroke(writingStroke,writingStroke.main_part_border);
-//    this->drawCenterPtForStroke(writingStroke);
-
+    this->drawBorderForStroke(writingStroke,writingStroke.main_part_border);
+    this->drawCenterPtForStroke(writingStroke);
     this->strokes.push_front(writingStroke);
 }
 
@@ -184,6 +184,25 @@ Mat Recognizer::combineStrokeMat(list<Stroke> strokes, Size target_size) {
     return combinedMat;
 }
 
+Mat Recognizer::combineStrokeMat(list<Stroke> strokes) {
+    Mat fstMat = strokes.front().stroke_mat;
+    Mat res = fstMat.clone();
+    uchar *rowPtr2;
+    Stroke s;
+    for (int i = 0; i < res.rows; i++) {
+        for (int j = 0; j < res.cols; j++) {
+            uchar *rowPtr = res.ptr<uchar>(i);
+            int maxVal = rowPtr[j];
+            for (auto it = strokes.cbegin(); it != strokes.cend(); ++it) {
+                s = *it;
+                rowPtr2 = s.stroke_mat.ptr<uchar>(i);
+                maxVal = std::max(maxVal, (int) rowPtr2[j]);
+            }
+            rowPtr[j] = maxVal;
+        }
+    }
+    return res;
+}
 int Recognizer::calculateAvgRowHeight(list<Stroke> strokes) {
     Rect border;
     int cnt = 0;
@@ -229,7 +248,7 @@ list<list<string> > Recognizer::recognize() {
             string res = label_character_m[key.c_str()].GetString();
             rowResult.push_front(res);
             printf("%s\t", res.c_str());
-            cvWaitKey(0);
+//            cvWaitKey(0);
         }
         printf("\n");
         rt.push_front(rowResult);

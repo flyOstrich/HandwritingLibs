@@ -1,5 +1,5 @@
+#include "opencv2/ml.hpp"
 #include "trainer.h"
-#include "log.h"
 #include "image-util.h"
 #include <fstream>
 
@@ -35,33 +35,52 @@ std::pair<cv::Mat, cv::Mat>  Trainer::HogComputer::convertGradientToMlFormat(
     cv::Mat trainData = cv::Mat(rows, cols, CV_32FC1);
     int i = 0;
     std::vector<int> labels;
+    cv::Mat labelData = Mat::zeros(rows,1,CV_32S);
+
     while (!gradient_list.empty()) {
         std::pair<int, cv::Mat> gradient_pair = gradient_list.front();
         gradient_pair.second.copyTo(trainData.row(i));
-        labels.push_back(gradient_pair.first);
+        uchar* row=labelData.ptr<uchar>(i);
+        row[0]=gradient_pair.first;
         i++;
         gradient_list.pop_front();
     }
-
-    return std::pair<cv::Mat, cv::Mat>(cv::Mat(labels, CV_32FC1), trainData);
+    return std::pair<cv::Mat, cv::Mat>(labelData, trainData);
 }
 
 void Trainer::HogComputer::trainSvm(std::pair<cv::Mat, cv::Mat> train_data,
                                     std::string trained_result_location) {
-    cv::Ptr<cv::ml::SVM> svm = cv::ml::SVM::create();
+//    cv::Ptr<cv::ml::SVM> svm = cv::ml::SVM::create();
+//    cv::Mat train_data_mat = train_data.second;
+//    cv::Mat train_data_labels = train_data.first;
+//
+//    svm->setKernel(cv::ml::SVM::LINEAR  );
+//    svm->setType(cv::ml::SVM::C_SVC); // C_SVC; // EPSILON_SVR; // may be also NU_SVR; // do regression task
+//    svm->train(train_data_mat, cv::ml::ROW_SAMPLE, train_data_labels);
+//
+//    svm->save(trained_result_location);
+//    int p;
+//    for (int i = 0; i < train_data_labels.rows; i++) {
+//        cv::Mat test_row = train_data_mat.row(i);
+//        p = svm->predict(test_row);
+//        cout<<p<<endl;
+//    }
+
+    cv::Ptr<cv::ml::RTrees> rforest=cv::ml::RTrees::create();
     cv::Mat train_data_mat = train_data.second;
     cv::Mat train_data_labels = train_data.first;
+    rforest->train(train_data_mat,cv::ml::ROW_SAMPLE,train_data_labels);
+    rforest->save(trained_result_location);
+    rforest->setMinSampleCount(1);
+    Util::ImageConverter::printMatrix(train_data.first);
 
-    svm->setKernel(cv::ml::SVM::LINEAR  );
-    svm->setType(cv::ml::SVM::C_SVC); // C_SVC; // EPSILON_SVR; // may be also NU_SVR; // do regression task
-    svm->train(train_data_mat, cv::ml::ROW_SAMPLE, train_data_labels);
 
-    svm->save(trained_result_location);
-    int p;
+
+    float p;
     for (int i = 0; i < train_data_labels.rows; i++) {
         cv::Mat test_row = train_data_mat.row(i);
-        p = svm->predict(test_row);
-        cout<<p<<endl;
+        p = rforest->predict(test_row);
+        cout << p << endl;
     }
 }
 

@@ -1,4 +1,6 @@
 #include "file-util.h"
+
+#ifdef OP_WINDOWS
 #include <direct.h>
 void Util::FileUtil::getFiles(string path, vector<string> &files) {
     //文件句柄
@@ -26,3 +28,26 @@ void Util::FileUtil::getFiles(string path, vector<string> &files) {
         _findclose(hFile);
     }
 }
+#endif
+#ifdef OP_DARWIN
+
+#include <dirent.h>
+
+void Util::FileUtil::getFiles(string path, vector<string> &files) {
+    string dirname;
+    DIR *dp;
+    struct dirent *dirp;
+    if ((dp = opendir(path.c_str())) == NULL)
+        cout << "Can't open " << dirname << endl;
+    while ((dirp = readdir(dp)) != NULL) {
+        if(dirp->d_type==8){
+            cout << dirp->d_name << endl;
+            string name=dirp->d_name;
+            files.push_back(name);
+        }
+    }
+    closedir(dp);
+}
+
+#endif
+
