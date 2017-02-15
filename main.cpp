@@ -13,18 +13,22 @@ using namespace rapidjson;
 
 //用手写板手写并识别
 void draw_and_recognize() {
-//    string stroke_file="D:\\workspace\\HandwritingLibs\\assets\\painter_stroke.txt";
-//    string svm_model_file="D:\\workspace\\HandwritingLibs\\assets\\train.yml";
-//    string label_character_map_file="D:\\workspace\\HandwritingLibs\\modules\\trainer\\label_character_map.txt";
-
-
+#ifdef OP_WINDOWS
+    string stroke_file = "D:\\workspace\\HandwritingLibs\\assets\\painter_stroke.txt";
+    string svm_model_file = "D:\\workspace\\HandwritingLibs\\assets\\train.yml";
+    string label_character_map_file = "D:\\workspace\\HandwritingLibs\\modules\\trainer\\label_character_map.txt";
+    string train_image_dir = "D:\\workspace\\HandwritingLibs\\modules\\trainer\\train-images";
+#endif
+#ifdef OP_DARWIN
     string stroke_file = "/Users/pjl/HandwritingLibs/assets/painter_stroke.txt";
     string svm_model_file = "/Users/pjl/HandwritingLibs/assets/train.yml";
     string label_character_map_file = "/Users/pjl/HandwritingLibs/modules/trainer/label_character_map.txt";
+    string train_image_dir = "/Users/pjl/HandwritingLibs/modules/trainer/train-images";
+#endif
     MouseHelper4OpenCV helper(stroke_file);
     Mat res = helper.MouseDraw("开始画画吧", Mat(400, 400, CV_8UC3, Scalar(0, 0, 0)), Scalar(255, 255, 255), 1);
-
-    Recognizer recognizer(svm_model_file, label_character_map_file, Size(400, 400));
+    string label="13";
+    Recognizer recognizer(svm_model_file, label_character_map_file, Size(400, 400),train_image_dir,label);
     ifstream in(stroke_file);
     if (!in.is_open()) {
         cout << "open file error" << endl;
@@ -36,7 +40,7 @@ void draw_and_recognize() {
         in.getline(buf, 6000);
         string s = buf;
         if (s.length() == 0)continue;
-        list<Point> stroke_points = JsonUtil::getPointListFromJsonString(s);
+        list <Point> stroke_points = JsonUtil::getPointListFromJsonString(s);
         recognizer.pushStroke(stroke_points, "aaaaa" + idx);
     }
     recognizer.recognize();
@@ -53,26 +57,22 @@ void train() {
     vector<string> files;
 #ifdef OP_WINDOWS
     fileUtil.getFiles("D:/workspace/HandwritingLibs/assets/train-images", files);
+    char *dir = "D:/workspace/HandwritingLibs/assets/train-images";
 #endif
 #ifdef OP_DARWIN
     fileUtil.getFiles("/Users/pjl/HandwritingLibs/assets/train-images", files);
-#endif
-//    char *dir = "D:/workspace/HandwritingLibs/assets/train-images";
     char *dir = "/Users/pjl/HandwritingLibs/assets/train-images";
+#endif
     std::list<std::pair<int, cv::Mat> > img_list = imageLoader.loadImages(files, dir);
     std::list<std::pair<int, cv::Mat> > gradient_list = Trainer::HogComputer::getGradientList(
             img_list);
     std::pair<cv::Mat, cv::Mat> train_data = Trainer::HogComputer::convertGradientToMlFormat(
             gradient_list);
-
     hogComputer.trainSvm(train_data, "D:\\workspace\\HandwritingLibs\\assets\\train.yml");
 }
 
 int main() {
-    cout << "aaaaaaa" << endl;
-
-    train();
+//    train();
     draw_and_recognize();
-
     return 0;
 }

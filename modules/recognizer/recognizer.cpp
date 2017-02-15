@@ -1,10 +1,11 @@
 #include "opencv2/ml.hpp"
 #include "recognizer.h"
-#include "image-util.h"
 #include "type-util.h"
-#include "mat-util.h"
 #include "trainer.h"
+#include "file-util.h"
 #include <fstream>
+#include "mat-util.h"
+#include "image-util.h"
 
 
 using namespace Util;
@@ -13,11 +14,14 @@ using namespace cv;
 Recognizer::Recognizer() {}
 
 
-Recognizer::Recognizer(string svm_model_file, string label_character_map_file, Size canvas_size) {
+Recognizer::Recognizer(string svm_model_file, string label_character_map_file, Size canvas_size, string splitImageDir,
+                       string label) {
     Document document;
     this->svm = ml::StatModel::load<ml::RTrees>(svm_model_file.c_str());
     this->canvasSize = canvas_size;
     this->label_character_map = "";
+    this->splitImageDir = splitImageDir;
+    this->label = label;
     ifstream ifs(label_character_map_file);
     string s = "";
     if (ifs.is_open()) {
@@ -33,10 +37,10 @@ Recognizer::Recognizer(string svm_model_file, string label_character_map_file, S
     }
 }
 
-void Recognizer::pushStroke(list<Point> original_points, string stroke_id) {
+void Recognizer::pushStroke(list <Point> original_points, string stroke_id) {
     Mat preProccessRes = MatUtil::getGrayImageFromPointList(original_points, this->canvasSize);
     int bgColor = ImageConverter::getImageBgColor(preProccessRes);
-    Rect stroke_border = ImageConverter::getImageBorderBox(preProccessRes,bgColor  );
+    Rect stroke_border = ImageConverter::getImageBorderBox(preProccessRes, bgColor);
     Point centerPt = ImageConverter::getStrokeCenterPoint(preProccessRes, stroke_border, bgColor);
     Rect mainPartBorder = ImageConverter::getStrokeMainPartBorder(centerPt, stroke_border);
 //    list<Point> resized_points = this->resizeOriginalPoints(original_points, this->canvasSize, TRAIN_IMAGE_SIZE);
@@ -50,9 +54,9 @@ void Recognizer::pushStroke(list<Point> original_points, string stroke_id) {
     writingStroke.centerPt = centerPt;
     writingStroke.main_part_border = mainPartBorder;
     writingStroke.original_points = original_points;
-//    writingStroke.resized_stroke_mat = resized_stroke_mat;
+    writingStroke.single_stroke_recognize_result = this->recognizeSingleStroke(writingStroke);
 
-    this->drawBorderForStroke(writingStroke,writingStroke.main_part_border);
+    this->drawBorderForStroke(writingStroke, writingStroke.main_part_border);
     this->drawCenterPtForStroke(writingStroke);
     this->strokes.push_front(writingStroke);
 }
@@ -67,7 +71,7 @@ void Recognizer::drawCenterPtForStroke(Stroke stroke) {
     circle(stroke.stroke_mat, stroke.centerPt, 5, color);
 }
 
-Mat Recognizer::combineStrokeMat(list<Stroke> strokes, Size target_size) {
+Mat Recognizer::combineStrokeMat(list <Stroke> strokes, Size target_size) {
 
     //1. 找出所有笔画的最小外接矩形
     Rect combinedMatSize(-1, -1, 0, 0);
@@ -92,10 +96,10 @@ Mat Recognizer::combineStrokeMat(list<Stroke> strokes, Size target_size) {
     }
     //2.以最小外接矩形的左上角点为原点，重新调整所有笔画的路径顺序
     struct StokePrecess {
-        list<Point> stroke_points;
+        list <Point> stroke_points;
         string stroke_id;
     };
-    list<StokePrecess> commonOuterBoxStrokes; //拥有共同原点的笔画路径
+    list <StokePrecess> commonOuterBoxStrokes; //拥有共同原点的笔画路径
     Point ori_pt, pt;
     for (auto it = strokes.cbegin(); it != strokes.cend(); ++it) {
         s = *it;
@@ -110,8 +114,8 @@ Mat Recognizer::combineStrokeMat(list<Stroke> strokes, Size target_size) {
         commonOuterBoxStrokes.push_back(sp);
     }
     //3.将调整后笔画路径数据缩放到target_size大小的矩形内
-    list<StokePrecess> targetSizeStrokes;
-    list<Point> all_stroke_points;
+    list <StokePrecess> targetSizeStrokes;
+    list <Point> all_stroke_points;
     bool isScaleWidth = combinedMatSize.width > combinedMatSize.height;
     float scale;
     if (isScaleWidth)
@@ -120,7 +124,7 @@ Mat Recognizer::combineStrokeMat(list<Stroke> strokes, Size target_size) {
         scale = (float) target_size.height / combinedMatSize.height;
     for (auto it = commonOuterBoxStrokes.cbegin(); it != commonOuterBoxStrokes.cend(); ++it) {
         StokePrecess sp = *it;
-        list<Point> stroke_points;
+        list <Point> stroke_points;
         for (auto it2 = sp.stroke_points.cbegin(); it2 != sp.stroke_points.cend(); ++it2) {
             ori_pt = *it2;
             pt.y = (int) std::floor(ori_pt.y * scale);
@@ -134,14 +138,14 @@ Mat Recognizer::combineStrokeMat(list<Stroke> strokes, Size target_size) {
         targetSizeStrokes.push_back(nextSp);
     }
     //4.调整点的位置，使笔画组成的字在target_size大小的窗口中居中
-    list<StokePrecess> centeredStrokes;
+    list <StokePrecess> centeredStrokes;
     Rect targetSizeCombinedMatBorder = ImageConverter::getImageBorderBox(all_stroke_points);
     int xStep = target_size.width / 2 - (targetSizeCombinedMatBorder.x + targetSizeCombinedMatBorder.width / 2);
     int yStep = target_size.height / 2 - (targetSizeCombinedMatBorder.y + targetSizeCombinedMatBorder.height / 2);
     for (auto it = targetSizeStrokes.cbegin(); it != targetSizeStrokes.cend(); ++it) {
         StokePrecess sp = *it;
         StokePrecess nextSp;
-        list<Point> stroke_points;
+        list <Point> stroke_points;
         for (auto it2 = sp.stroke_points.cbegin(); it2 != sp.stroke_points.cend(); ++it2) {
             Point pt = *it2;
             Point nextPt;
@@ -184,7 +188,7 @@ Mat Recognizer::combineStrokeMat(list<Stroke> strokes, Size target_size) {
     return combinedMat;
 }
 
-Mat Recognizer::combineStrokeMat(list<Stroke> strokes) {
+Mat Recognizer::combineStrokeMat(list <Stroke> strokes) {
     Mat fstMat = strokes.front().stroke_mat;
     Mat res = fstMat.clone();
     uchar *rowPtr2;
@@ -203,7 +207,8 @@ Mat Recognizer::combineStrokeMat(list<Stroke> strokes) {
     }
     return res;
 }
-int Recognizer::calculateAvgRowHeight(list<Stroke> strokes) {
+
+int Recognizer::calculateAvgRowHeight(list <Stroke> strokes) {
     Rect border;
     int cnt = 0;
     int total = 0;
@@ -215,26 +220,26 @@ int Recognizer::calculateAvgRowHeight(list<Stroke> strokes) {
         }
     }
     if (cnt == 0)return 10;
-    else return total / cnt * 0.8;
+    else return total / cnt;
 }
 
 
-list<list<string> > Recognizer::recognize() {
+list <list<string>> Recognizer::recognize() {
     printf("\n");
     Document document;
     document.Parse(this->label_character_map.c_str());
     Value label_character_m = document.GetObject();
-    list<Stroke> strokes = this->strokes;
+    list <Stroke> strokes = this->strokes;
     this->clusterAnalyzer.cluster_max_height = this->calculateAvgRowHeight(strokes);
-    list<Category> categories = this->clusterAnalyzer.getRecognizeUnitsForCategories(strokes);
+    list <Category> categories = this->clusterAnalyzer.getRecognizeUnitsForCategories(strokes);
     int i = 0;
-    list<list<string> > rt;
+    list <list<string>> rt;
     for (auto it = categories.cbegin(); it != categories.cend(); ++it) {
         int j = 0;
         i++;
         Category category = *it;
-        list<RecognizeUnit> units = category.recognize_units;
-        list<string> rowResult;
+        list <RecognizeUnit> units = category.recognize_units;
+        list <string> rowResult;
         for (auto it2 = units.cbegin(); it2 != units.cend(); ++it2) {
             j++;
             string winName = "result" + TypeConverter::int2String(i) + TypeConverter::int2String(j);
@@ -242,24 +247,33 @@ list<list<string> > Recognizer::recognize() {
             Mat combinedMat = this->combineStrokeMat(unit.strokes, TRAIN_IMAGE_SIZE);
             imshow(winName, combinedMat);
             moveWindow(winName, (j - 1) * 100, (i - 1) * 100);
+            if (this->splitImageDir != "NONE") {
+                this->saveSplitImage(combinedMat, this->label);
+            }
             Mat descriptorMat = Trainer::HogComputer::getHogDescriptorForImage(combinedMat);
             int rec_label = this->svm->predict(descriptorMat);
+            std::list<std::pair<int, float> > resa = this->svm->predict_prob(descriptorMat);
+            cout << "********predict result********" << endl;
+            while (!resa.empty()) {
+                pair<int, float> it = resa.front();
+                cout << it.first << "----->" << it.second << endl;
+                resa.pop_front();
+            }
             string key = TypeConverter::int2String(rec_label);
             string res = label_character_m[key.c_str()].GetString();
             rowResult.push_front(res);
-            printf("%s\t", res.c_str());
+            printf("use: %s\t\n", res.c_str());
 //            cvWaitKey(0);
         }
-        printf("\n");
         rt.push_front(rowResult);
     }
     return rt;
 }
 
-list<Point> Recognizer::resizeOriginalPoints(list<Point> original_points, Size original_size, Size target_size) {
+list <Point> Recognizer::resizeOriginalPoints(list <Point> original_points, Size original_size, Size target_size) {
     float scaleX = (float) target_size.width / original_size.width;
     float scaleY = (float) target_size.height / original_size.height;
-    list<Point> rt;
+    list <Point> rt;
     for (auto it = original_points.cbegin(); it != original_points.cend(); ++it) {
         Point pt = *it;
         float targetX = std::round(pt.x * scaleX);
@@ -267,5 +281,22 @@ list<Point> Recognizer::resizeOriginalPoints(list<Point> original_points, Size o
         rt.push_front(Point(targetX, targetY));
     }
     return rt;
+}
+
+void Recognizer::saveSplitImage(Mat image, string label) {
+    vector<string> files;
+    Util::FileUtil::getFiles(this->splitImageDir, files);
+    string imageLoc = this->splitImageDir + "/" + label + "_" + TypeConverter::int2String(files.size() + 1) + ".bmp";
+    imwrite(imageLoc.c_str(), image);
+}
+
+int Recognizer::recognizeSingleStroke(Stroke stroke) {
+    list <Stroke> strokes;
+    strokes.push_back(stroke);
+    Mat combinedMat = this->combineStrokeMat(strokes, TRAIN_IMAGE_SIZE);
+    Mat descriptorMat = Trainer::HogComputer::getHogDescriptorForImage(combinedMat);
+    int res = this->svm->predict(descriptorMat);
+    cout << "Recognizer::recognizeSingleStroke->" << res << endl;
+    return res;
 }
 

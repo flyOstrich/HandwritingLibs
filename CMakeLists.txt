@@ -7,7 +7,7 @@ include_directories("include")
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     message("windows......................")
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}\\cmake\\)
-    set(OpenCV_DIR D:\\opencv3.1\\opencv\\mingw-build\\install)
+    set(OpenCV_DIR  D:\\android\\opencv310Custom\\opencv310Custom\\mingw-build\\install)
 endif()
 
 find_package(OpenCV REQUIRED)

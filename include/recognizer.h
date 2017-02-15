@@ -13,13 +13,17 @@ private:
 public:
     Recognizer();
 
-    Recognizer(string svm_model_file, string label_character_map_file, Size canvas_size);
+    Recognizer(string svm_model_file, string label_character_map_file, Size canvas_size, string splitImageDir="NONE",string label="0");
 
-    list<Stroke> strokes;
+    list <Stroke> strokes;
 
     string label_character_map;
 
-    Size canvasSize;
+    Size canvasSize; //手写画布的大小
+
+    string splitImageDir;//保存训练样本图片的目录
+
+    string label;//保存训练样本图片的Label
 
     enum RECOGNIZE_STATUS {
         RECOGNIZE_START,
@@ -32,11 +36,19 @@ public:
         RECOGNIZE_RESIZED_STROKE_MAT = 1,
     };
 
-    void pushStroke(list<Point> original_points, string stroke_id);
+    void pushStroke(list <Point> original_points, string stroke_id);
 
     void drawBorderForStroke(Stroke stroke, Rect border);
 
     void drawCenterPtForStroke(Stroke stroke);
+
+    /*************************************************
+    Function:       saveSplitImage
+    Description:    保存分割后的图片（用于制作训练样本）
+    Input:          image  图片矩阵
+    Input:          label  图片label
+    *************************************************/
+    void saveSplitImage(Mat image,string label);
 
     /*************************************************
       Function:       getCategories
@@ -46,7 +58,7 @@ public:
       Input:          target_size    目标点阵大小
       Return:         缩放后的点列表
       *************************************************/
-    list<Point> resizeOriginalPoints(list<Point> original_points, Size original_size, Size target_size);
+    list <Point> resizeOriginalPoints(list <Point> original_points, Size original_size, Size target_size);
 
     /*************************************************
          Function:       combineStrokeMat
@@ -56,7 +68,7 @@ public:
          Input:          target_size 合并后目标图像的大小
          Return:         合并后的图像
     *************************************************/
-    Mat combineStrokeMat(list<Stroke> strokes, Size target_size);
+    Mat combineStrokeMat(list <Stroke> strokes, Size target_size);
 
     /*************************************************
      Function:       combineStrokeMat
@@ -64,11 +76,13 @@ public:
      Input:          strokes  笔画路径数据
      Return:         合并后的图像
     *************************************************/
-    Mat combineStrokeMat(list<Stroke> strokes);
+    Mat combineStrokeMat(list <Stroke> strokes);
 
     //计算平均每行的高度
-    int calculateAvgRowHeight(list<Stroke> strokes);
+    int calculateAvgRowHeight(list <Stroke> strokes);
+    //识别单个笔画
+    int recognizeSingleStroke(Stroke stroke);
 
-    list<list<string> > recognize();
+    list <list<string>> recognize();
 
 };

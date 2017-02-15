@@ -71,17 +71,17 @@ void Trainer::HogComputer::trainSvm(std::pair<cv::Mat, cv::Mat> train_data,
     cv::Mat train_data_labels = train_data.first;
     rforest->train(train_data_mat,cv::ml::ROW_SAMPLE,train_data_labels);
     rforest->save(trained_result_location);
-    rforest->setMinSampleCount(1);
-    Util::ImageConverter::printMatrix(train_data.first);
-
-
-
-    float p;
-    for (int i = 0; i < train_data_labels.rows; i++) {
-        cv::Mat test_row = train_data_mat.row(i);
-        p = rforest->predict(test_row);
-        cout << p << endl;
-    }
+    rforest->setMinSampleCount(5);
+//    Util::ImageConverter::printMatrix(train_data.first);
+//
+//
+//
+//    float p;
+//    for (int i = 0; i < train_data_labels.rows; i++) {
+//        cv::Mat test_row = train_data_mat.row(i);
+//        p = rforest->predict(test_row);
+//        cout << p << endl;
+//    }
 }
 
 std::list<std::pair<int, cv::Mat> > Trainer::ImageLoader::loadImages(
