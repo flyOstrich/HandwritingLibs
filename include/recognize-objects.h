@@ -2,7 +2,16 @@
 
 #include "common.h"
 
-
+struct Direction {
+    bool top = false;
+    bool bottom = false;
+    bool leftTop = false;
+    bool leftBottom = false;
+    bool rightTop = false;
+    bool rightBottom = false;
+    bool validHeight = false;
+    bool validWidth = false;
+};
 struct Stroke {
     string stroke_id;
     //笔画边界
@@ -18,6 +27,8 @@ struct Stroke {
     list <Point> original_points;
     //单个笔画的识别结果 （对笔画进行聚类时，会首先对识别结果为分数中的分数线以及根号等特殊形式进行处理）
     int single_stroke_recognize_result;
+    //笔画字符的方位信息
+    Direction direction;
 };
 /**
  * 由一些笔画组成的识别单元，单元内包含的笔画之间可能满足以下几个关系
@@ -34,4 +45,14 @@ struct Category {
     Point2f centerPt;
     list <Stroke> strokes;
     list <RecognizeUnit> recognize_units;
+};
+enum StrokeSetType {
+    FRACTION_STROKE_SET,
+    NORMAL_STROKE_SET
+};
+struct StrokeSet {
+    list <Stroke> strokes;
+    Rect main_part_border;
+    Point centerPt;
+    StrokeSetType strokeSetType;
 };

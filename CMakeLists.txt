@@ -24,8 +24,7 @@ set(SOURCE_FILES main.cpp
                  modules/painter/painter.cpp
                  modules/trainer/trainer.cpp
                  modules/android-interface.cpp
-                 modules/file_util/file-util.cpp
-                 include/recognize-objects.h)
+                 modules/file_util/file-util.cpp modules/stroke_classifier/stroke-classifier.cpp modules/character_recognizer/character_recognizer.cpp)
 message("${CMAKE_SYSTEM_NAME}")
 
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")

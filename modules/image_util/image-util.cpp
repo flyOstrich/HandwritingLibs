@@ -452,35 +452,37 @@ cv::Mat Util::ImageConverter::getGrayImage(cv::Mat src) {
 cv::Point Util::ImageConverter::getStrokeCenterPoint(cv::Mat &stroke, cv::Rect strokeBorder,
                                                      int bgColor) {
     Point centerPt;
-    Mat sub;
-    float ct, pct, pct2, weight;
-    Mat strokeRect = stroke.colRange(strokeBorder.x, strokeBorder.x + strokeBorder.width)
-            .rowRange(strokeBorder.y, strokeBorder.y + strokeBorder.height);
-    int colorCnt = Util::ImageConverter::getMatColorCount(strokeRect, bgColor);
-    for (int i = 0; i <= strokeRect.rows; i++) {
-        sub = strokeRect.rowRange(0, i);
-        ct = ImageConverter::getMatColorCount(sub, bgColor);
-
-        pct = ct / colorCnt;
-        pct2 = (float) i / strokeRect.rows;
-
-        weight = pct * 0.6 + pct2 * 0.4;
-        if (weight >= 0.5) {
-            centerPt.y = i + strokeBorder.y;
-            break;
-        }
-    }
-    for (int i = 0; i <= strokeRect.cols; i++) {
-        sub = strokeRect.colRange(0, i);
-        ct = ImageConverter::getMatColorCount(sub, bgColor);
-        pct = ct / colorCnt;
-        pct2 = (float) i / strokeRect.cols;
-        weight = pct * 0.6 + pct2 * 0.4;
-        if (weight >= 0.5) {
-            centerPt.x = i + strokeBorder.x;
-            break;
-        }
-    }
+//    Mat sub;
+//    float ct, pct, pct2, weight;
+//    Mat strokeRect = stroke.colRange(strokeBorder.x, strokeBorder.x + strokeBorder.width)
+//            .rowRange(strokeBorder.y, strokeBorder.y + strokeBorder.height);
+//    int colorCnt = Util::ImageConverter::getMatColorCount(strokeRect, bgColor);
+//    for (int i = 0; i <= strokeRect.rows; i++) {
+//        sub = strokeRect.rowRange(0, i);
+//        ct = ImageConverter::getMatColorCount(sub, bgColor);
+//
+//        pct = ct / colorCnt;
+//        pct2 = (float) i / strokeRect.rows;
+//
+//        weight = pct * 0.6 + pct2 * 0.4;
+//        if (weight >= 0.5) {
+//            centerPt.y = i + strokeBorder.y;
+//            break;
+//        }
+//    }
+//    for (int i = 0; i <= strokeRect.cols; i++) {
+//        sub = strokeRect.colRange(0, i);
+//        ct = ImageConverter::getMatColorCount(sub, bgColor);
+//        pct = ct / colorCnt;
+//        pct2 = (float) i / strokeRect.cols;
+//        weight = pct * 0.6 + pct2 * 0.4;
+//        if (weight >= 0.5) {
+//            centerPt.x = i + strokeBorder.x;
+//            break;
+//        }
+//    }
+    centerPt.x=strokeBorder.x+strokeBorder.width/2;
+    centerPt.y=strokeBorder.y+strokeBorder.height/2;
     return centerPt;
 }
 

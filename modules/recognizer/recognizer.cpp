@@ -6,23 +6,23 @@
 #include <fstream>
 #include "mat-util.h"
 #include "image-util.h"
+#include "config.h"
+
 
 
 using namespace Util;
 using namespace cv;
 
-Recognizer::Recognizer() {}
+Recognizer::SymbolRecognizer::SymbolRecognizer() {};
 
-
-Recognizer::Recognizer(string svm_model_file, string label_character_map_file, Size canvas_size, string splitImageDir,
-                       string label) {
+Recognizer::SymbolRecognizer::SymbolRecognizer(Size canvas_size,string splitImageDir, string label) {
     Document document;
-    this->svm = ml::StatModel::load<ml::RTrees>(svm_model_file.c_str());
+    this->svm = ml::StatModel::load<ml::SVM>(SVM_MODEL_FILE);
     this->canvasSize = canvas_size;
     this->label_character_map = "";
     this->splitImageDir = splitImageDir;
     this->label = label;
-    ifstream ifs(label_character_map_file);
+    ifstream ifs(LABEL_CHARACTER_MAP_FILE);
     string s = "";
     if (ifs.is_open()) {
         int bufLen = 200;
@@ -31,20 +31,15 @@ Recognizer::Recognizer(string svm_model_file, string label_character_map_file, S
             ifs.getline(buf, bufLen);
             this->label_character_map += buf;
         }
-//        printf("%s", this->label_character_map.c_str());
-        document.Parse(this->label_character_map.c_str());
-//        printf("\n----------------------------%s",document.GetObject()["5"].GetString());
     }
 }
 
-void Recognizer::pushStroke(list <Point> original_points, string stroke_id) {
+void Recognizer::SymbolRecognizer::pushStroke(list <Point> original_points, string stroke_id) {
     Mat preProccessRes = MatUtil::getGrayImageFromPointList(original_points, this->canvasSize);
     int bgColor = ImageConverter::getImageBgColor(preProccessRes);
     Rect stroke_border = ImageConverter::getImageBorderBox(preProccessRes, bgColor);
     Point centerPt = ImageConverter::getStrokeCenterPoint(preProccessRes, stroke_border, bgColor);
     Rect mainPartBorder = ImageConverter::getStrokeMainPartBorder(centerPt, stroke_border);
-//    list<Point> resized_points = this->resizeOriginalPoints(original_points, this->canvasSize, TRAIN_IMAGE_SIZE);
-//    Mat resized_stroke_mat = MatUtil::getGrayImageFromPointList(resized_points, TRAIN_IMAGE_SIZE);
 
     Stroke writingStroke;
     writingStroke.stroke_mat = preProccessRes;
@@ -56,22 +51,23 @@ void Recognizer::pushStroke(list <Point> original_points, string stroke_id) {
     writingStroke.original_points = original_points;
     writingStroke.single_stroke_recognize_result = this->recognizeSingleStroke(writingStroke);
 
+
     this->drawBorderForStroke(writingStroke, writingStroke.main_part_border);
     this->drawCenterPtForStroke(writingStroke);
     this->strokes.push_front(writingStroke);
 }
 
-void Recognizer::drawBorderForStroke(Stroke stroke, Rect border) {
+void Recognizer::SymbolRecognizer::drawBorderForStroke(Stroke stroke, Rect border) {
     const Scalar color(150);//画笔颜色
     rectangle(stroke.stroke_mat, border, color);
 }
 
-void Recognizer::drawCenterPtForStroke(Stroke stroke) {
+void Recognizer::SymbolRecognizer::drawCenterPtForStroke(Stroke stroke) {
     const Scalar color(150);//画笔颜色
     circle(stroke.stroke_mat, stroke.centerPt, 5, color);
 }
 
-Mat Recognizer::combineStrokeMat(list <Stroke> strokes, Size target_size) {
+Mat Recognizer::SymbolRecognizer::combineStrokeMat(list <Stroke> strokes, Size target_size) {
 
     //1. 找出所有笔画的最小外接矩形
     Rect combinedMatSize(-1, -1, 0, 0);
@@ -188,7 +184,7 @@ Mat Recognizer::combineStrokeMat(list <Stroke> strokes, Size target_size) {
     return combinedMat;
 }
 
-Mat Recognizer::combineStrokeMat(list <Stroke> strokes) {
+Mat Recognizer::SymbolRecognizer::combineStrokeMat(list <Stroke> strokes) {
     Mat fstMat = strokes.front().stroke_mat;
     Mat res = fstMat.clone();
     uchar *rowPtr2;
@@ -208,7 +204,7 @@ Mat Recognizer::combineStrokeMat(list <Stroke> strokes) {
     return res;
 }
 
-int Recognizer::calculateAvgRowHeight(list <Stroke> strokes) {
+int Recognizer::SymbolRecognizer::calculateAvgRowHeight(list <Stroke> strokes) {
     Rect border;
     int cnt = 0;
     int total = 0;
@@ -224,7 +220,7 @@ int Recognizer::calculateAvgRowHeight(list <Stroke> strokes) {
 }
 
 
-list <list<string>> Recognizer::recognize() {
+list <list<string>> Recognizer::SymbolRecognizer::recognize() {
     printf("\n");
     Document document;
     document.Parse(this->label_character_map.c_str());
@@ -252,15 +248,16 @@ list <list<string>> Recognizer::recognize() {
             }
             Mat descriptorMat = Trainer::HogComputer::getHogDescriptorForImage(combinedMat);
             int rec_label = this->svm->predict(descriptorMat);
-            std::list<std::pair<int, float> > resa = this->svm->predict_prob(descriptorMat);
-            cout << "********predict result********" << endl;
-            while (!resa.empty()) {
-                pair<int, float> it = resa.front();
-                cout << it.first << "----->" << it.second << endl;
-                resa.pop_front();
-            }
+//            std::list<std::pair<int, float> > resa = this->svm->predict_prob(descriptorMat);
+//            cout << "********predict result********" << endl;
+//            while (!resa.empty()) {
+//                pair<int, float> it = resa.front();
+//                cout << it.first << "----->" << it.second << endl;
+//                resa.pop_front();
+//            }
             string key = TypeConverter::int2String(rec_label);
-            string res = label_character_m[key.c_str()].GetString();
+            Value cfg = label_character_m[key.c_str()].GetObject();
+            string res = cfg["val"].GetString();
             rowResult.push_front(res);
             printf("use: %s\t\n", res.c_str());
 //            cvWaitKey(0);
@@ -270,7 +267,8 @@ list <list<string>> Recognizer::recognize() {
     return rt;
 }
 
-list <Point> Recognizer::resizeOriginalPoints(list <Point> original_points, Size original_size, Size target_size) {
+list <Point>
+Recognizer::SymbolRecognizer::resizeOriginalPoints(list <Point> original_points, Size original_size, Size target_size) {
     float scaleX = (float) target_size.width / original_size.width;
     float scaleY = (float) target_size.height / original_size.height;
     list <Point> rt;
@@ -283,20 +281,26 @@ list <Point> Recognizer::resizeOriginalPoints(list <Point> original_points, Size
     return rt;
 }
 
-void Recognizer::saveSplitImage(Mat image, string label) {
+void Recognizer::SymbolRecognizer::saveSplitImage(Mat image, string label) {
     vector<string> files;
     Util::FileUtil::getFiles(this->splitImageDir, files);
     string imageLoc = this->splitImageDir + "/" + label + "_" + TypeConverter::int2String(files.size() + 1) + ".bmp";
     imwrite(imageLoc.c_str(), image);
 }
 
-int Recognizer::recognizeSingleStroke(Stroke stroke) {
+int Recognizer::SymbolRecognizer::recognizeSingleStroke(Stroke stroke) {
     list <Stroke> strokes;
     strokes.push_back(stroke);
     Mat combinedMat = this->combineStrokeMat(strokes, TRAIN_IMAGE_SIZE);
     Mat descriptorMat = Trainer::HogComputer::getHogDescriptorForImage(combinedMat);
-    int res = this->svm->predict(descriptorMat);
-    cout << "Recognizer::recognizeSingleStroke->" << res << endl;
-    return res;
+    int rt = this->svm->predict(descriptorMat);
+//    std::list<std::pair<int, float> > pRes = this->svm->predict_prob(descriptorMat);
+//    int rt =pRes.front().first;
+//    while (!pRes.empty()) {
+//        std::pair<int, float> res = pRes.front();
+//        cout << "Recognizer::recognizeSingleStroke->" << res.first << "-->" << res.second  << endl;
+//        pRes.pop_front();
+//    }
+    return rt;
 }
 

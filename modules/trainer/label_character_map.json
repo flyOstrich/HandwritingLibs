@@ -1,0 +1,20 @@
+{
+  "0": {"validHeight":true,"validWidth":true,"val":"0","top":false,"bottom":false,  "rbottom":false,"rtop":true,"lbottom":false,"ltop":false},
+  "1": {"validHeight":true,"validWidth":true,"val":"1","top":false,"bottom":false,  "rbottom":false,"rtop":true,"lbottom":false,"ltop":false},
+  "2": {"validHeight":true,"validWidth":true,"val":"2","top":false,"bottom":false,  "rbottom":false,"rtop":true,"lbottom":false,"ltop":false},
+  "3": {"validHeight":true,"validWidth":true,"val":"3","top":false,"bottom":false,  "rbottom":false,"rtop":true,"lbottom":false,"ltop":false},
+  "4": {"validHeight":true,"validWidth":true,"val":"4","top":false,"bottom":false,  "rbottom":false,"rtop":true,"lbottom":false,"ltop":false},
+  "5": {"validHeight":true,"validWidth":true,"val":"5","top":false,"bottom":false,  "rbottom":false,"rtop":true,"lbottom":false,"ltop":false},
+  "6": {"validHeight":true,"validWidth":true,"val":"6","top":false,"bottom":false,  "rbottom":false,"rtop":true,"lbottom":false,"ltop":false},
+  "7": {"validHeight":true,"validWidth":true,"val":"7","top":false,"bottom":false,  "rbottom":false,"rtop":true,"lbottom":false,"ltop":false},
+  "8": {"validHeight":true,"validWidth":true,"val":"8","top":false,"bottom":false,  "rbottom":false,"rtop":true,"lbottom":false,"ltop":false},
+  "9": {"validHeight":true,"validWidth":true,"val":"9","top":false,"bottom":false,  "rbottom":false,"rtop":true,"lbottom":false,"ltop":false},
+  "10":{"validHeight":true,"validWidth":true,"val":"+","top":false,"bottom":false,  "rbottom":false,"rtop":false,"lbottom":false,"ltop":false},
+  "11":{"validHeight":false,"validWidth":true,"val":"-","top":true,"bottom":true,    "rbottom":false,"rtop":false,"lbottom":false,"ltop":false},
+  "12":{"validHeight":true,"validWidth":true,"val":"×","top":false,"bottom":false, "rbottom":false,"rtop":false,"lbottom":false,"ltop":false},
+  "13":{"validHeight":true,"validWidth":true,"val":"÷","top":false,"bottom":false, "rbottom":false,"rtop":false,"lbottom":false,"ltop":false},
+  "14":{"validHeight":true,"validWidth":true,"val":"±","top":false,"bottom":false, "rbottom":false,"rtop":false,"lbottom":false,"ltop":false},
+  "15":{"validHeight":true,"validWidth":true,"val":"≥","top":false,"bottom":false, "rbottom":false,"rtop":false,"lbottom":false,"ltop":false},
+  "16":{"validHeight":true,"validWidth":true,"val":"≤","top":false,"bottom":false, "rbottom":false,"rtop":false,"lbottom":false,"ltop":false},
+  "17":{"validHeight":false,"validWidth":false,"val":".","top":false,"bottom":false,  "rbottom":false,"rtop":false,"lbottom":false,"ltop":false}
+}
