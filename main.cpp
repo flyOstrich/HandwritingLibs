@@ -7,7 +7,8 @@
 #include "trainer.h"
 #include "file-util.h"
 #include "config.h"
-#include "stroke-classifier.h"
+#include "strokeClassifier.h"
+#include "debugUtil.h"
 
 using namespace cv;
 using namespace std;
@@ -33,7 +34,7 @@ void draw_and_recognize() {
         list <Point> stroke_points = JsonUtil::getPointListFromJsonString(s);
         recognizer.pushStroke(stroke_points, "aaaaa" + idx);
     }
-    recognizer.recognize();
+//    recognizer.recognize();
 //    Mat final = recognizer.combineStrokeMat(recognizer.strokes);
 //    imshow("result", final);
     waitKey(0);
@@ -71,12 +72,17 @@ void testStrokeClassifier(){
         list <Point> stroke_points = JsonUtil::getPointListFromJsonString(s);
         classifier.addStroke(stroke_points);
     }
+    DebugUtil::showFractions(classifier.restStrokeSets);
+//    for (auto it = classifier.restStrokeSets.cbegin(); it != classifier.restStrokeSets.cend(); ++it) {
+//        StrokeSet strokeSet=*it;
+//        cout<<"item"<<endl;
+//    }
     cout<<"end"<<endl;
 }
 
 int main() {
-//    train();
-//    draw_and_recognize();
+    train();
+    draw_and_recognize();
     testStrokeClassifier();
     return 0;
 }

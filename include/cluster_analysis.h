@@ -1,6 +1,6 @@
 #pragma once
 
-#include "recognize-objects.h"
+#include "recognizeObjects.h"
 
 class ClusterAnalysis {
 public:

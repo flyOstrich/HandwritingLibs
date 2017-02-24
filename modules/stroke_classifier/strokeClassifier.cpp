@@ -1,9 +1,10 @@
-#include "stroke-classifier.h"
+#include "strokeClassifier.h"
 #include "mat-util.h"
 #include "image-util.h"
 #include "config.h"
 #include <fstream>
 #include "type-util.h"
+#include "fractionAnalyzer/fractionAnalyzer.h"
 
 using namespace Util;
 
@@ -70,6 +71,8 @@ Stroke Recognizer::StrokeClassifier::addStroke(list <Point> original_points) {
     strokeSet.main_part_border = writingStroke.main_part_border;
     strokeSet.strokes.push_front(writingStroke);
     strokeSet.centerPt = writingStroke.centerPt;
+    strokeSet.strokeSetType = NORMAL_STROKE_SET;
+    strokeSet.recognizeResult = writingStroke.single_stroke_recognize_result;
     this->strokes.push_back(writingStroke);
     this->stroke_set.push_back(strokeSet);
 
@@ -91,31 +94,51 @@ bool sortFractionStrokeSetByWidth(StrokeSet first, StrokeSet second) {
 }
 
 list <StrokeSet>
-Recognizer::StrokeClassifier::gatherFractionStrokeItem(list <StrokeSet> StrokeSets, StrokeSet strokeSet) {
-//     this->detectRectIntersect(fractionStrokeSe)
+Recognizer::StrokeClassifier::gatherFractionStrokeItem(list <StrokeSet> strokeSets, StrokeSet fractionStrokeSet) {
+    list <StrokeSet> rtStrokeSets;
+    StrokeSet gatheredStrokeSet;
+    while (!strokeSets.empty()) {
+
+    }
+    for (auto it = strokeSets.cbegin(); it != strokeSets.cend(); ++it) {
+        StrokeSet strokeSet = *it;
+        StrokeSet st;
+        if (this->detectRectIntersect(strokeSet.main_part_border, fractionStrokeSet.main_part_border)) {
+//            st.strokes.push_back(strokeSet.strokes.)
+        } else {
+
+        }
+    }
 }
 
 list <StrokeSet> Recognizer::StrokeClassifier::getStrokeSetsByFractionBar() {
 
     /**************************找出笔画中所有的分数线*********************/
     cout << "**************************find all fraction bars *********************" << endl;
-    list <StrokeSet> fractionBarStrokes;
+    list <StrokeSet> fractionBarStrokeSets;
+    list <StrokeSet> restStrokeSets;
     for (auto it = this->stroke_set.cbegin(); it != this->stroke_set.cend(); ++it) {
         StrokeSet strokeSet = *it;
-        if (strokeSet.strokes.front().single_stroke_recognize_result == 11) {//���� ������
-            fractionBarStrokes.push_back(strokeSet);
+        if (strokeSet.strokes.front().single_stroke_recognize_result == 11) {//减号或分数线
+            fractionBarStrokeSets.push_back(strokeSet);
+        } else {
+            restStrokeSets.push_back(strokeSet);
         }
     }
-    fractionBarStrokes.sort(sortFractionStrokeSetByWidth);
-    cout << "faction bar size->" << fractionBarStrokes.size() << endl;
-
-
-    //根据
-    list <StrokeSet> rt = this->stroke_set;
-    for (auto it = fractionBarStrokes.cbegin(); it != fractionBarStrokes.cend(); ++it) {
+    fractionBarStrokeSets.sort(sortFractionStrokeSetByWidth);
+    this->restStrokeSets = restStrokeSets;
+    cout << "faction bar sets size->" << fractionBarStrokeSets.size() << endl;
+    cout << "rest stroke sets size->" << restStrokeSets.size() << endl;
+    //根据分数比划获取分数的分子和分母的笔画
+    for (auto it = fractionBarStrokeSets.cbegin(); it != fractionBarStrokeSets.cend(); ++it) {
         StrokeSet fractionBarStrokeSet = *it;
+        FractionAnalyzer fractionAnalyzer(this->restStrokeSets, fractionBarStrokeSet, this->avgStrokeHeight);
+        this->restStrokeSets = fractionAnalyzer.restStrokeSets;
+        cout << "top:->" << fractionAnalyzer.topStrokeSets.size() << endl;
+        cout << "bottom:->" << fractionAnalyzer.bottomStrokeSets.size() << endl;
+        cout << "rest:->" << fractionAnalyzer.restStrokeSets.size() << endl;
     }
-    return fractionBarStrokes;
+    return fractionBarStrokeSets;
 }
 
 /*************************************************

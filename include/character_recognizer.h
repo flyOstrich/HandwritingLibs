@@ -1,4 +1,4 @@
-#include "recognize-objects.h"
+#include "recognizeObjects.h"
 namespace Recognizer {
     class CharacterRecognizer {
     public:
