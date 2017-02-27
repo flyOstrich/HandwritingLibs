@@ -6,9 +6,9 @@
 #define SVM_TRAIN_IMAGE_DIR "D:\\workspace\\HandwritingLibs\\assets\\train-images"
 #endif
 #ifdef OP_DARWIN
-#define STROKE_FILE  "/Users/pjl/HandwritingLibs/assets/painter_stroke.txt"
+#define STROKE_FILE  "/Users/pjl/HandwritingLibs/assets/painter_stroke3.txt"
 #define SVM_MODEL_FILE "/Users/pjl/HandwritingLibs/assets/train.yml"
-#define LABEL_CHARACTER_MAP_FILE "/Users/pjl/HandwritingLibs/modules/trainer/label_character_map.txt"
+#define LABEL_CHARACTER_MAP_FILE "/Users/pjl/HandwritingLibs/modules/trainer/label_character_map.json"
 #define TRAIN_IMAGE_DIR "/Users/pjl/HandwritingLibs/modules/trainer/train-images"
 #define SVM_TRAIN_IMAGE_DIR "/Users/pjl/HandwritingLibs/assets/train-images"
 #endif

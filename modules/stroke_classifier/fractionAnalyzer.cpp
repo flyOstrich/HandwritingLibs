@@ -192,6 +192,7 @@ bool FractionAnalyzer::findTopAndBottomStrokeSet() {
     cout << "did not found items" << endl;
 //    imshow("fraction bar",combineStrokeMat(this->fractionStrokeSet.strokes,Size(400,400)));
     this->fractionStrokeSet.isFractionBarFlag = false;
+    this->fractionStrokeSet.strokeSetType=NORMAL_STROKE_SET;
     this->restStrokeSets.push_back(this->fractionStrokeSet);
 //    imshow("add to rest",combineStrokeMat(this->fractionStrokeSet.strokes,Size(400,400)));
 
