@@ -5,8 +5,10 @@
 #include <fstream>
 #include "type-util.h"
 #include "fractionAnalyzer/fractionAnalyzer.h"
+#include "debugUtil.h"
 
 using namespace Util;
+using namespace DebugUtil;
 
 Recognizer::StrokeClassifier::StrokeClassifier() {
 
@@ -35,23 +37,18 @@ Recognizer::StrokeClassifier::StrokeClassifier(Size canvas_size) {
 *************************************************/
 Stroke Recognizer::StrokeClassifier::addStroke(list <Point> original_points) {
     Mat preProccessRes = MatUtil::getGrayImageFromPointList(original_points, this->canvas_size);
-    int bgColor = ImageConverter::getImageBgColor(preProccessRes);
-    Rect stroke_border = ImageConverter::getImageBorderBox(preProccessRes, bgColor);
-    Point centerPt = ImageConverter::getStrokeCenterPoint(preProccessRes, stroke_border, bgColor);
+    Rect stroke_border = ImageConverter::getImageBorderBox(preProccessRes, 0);
+    Point centerPt = ImageConverter::getStrokeCenterPoint(preProccessRes, stroke_border, 0);
     Rect mainPartBorder = ImageConverter::getStrokeMainPartBorder(centerPt, stroke_border);
-//    Rect mainPartBorder = ImageConverter::getStrokeMainPartBorder(
-//            Point(stroke_border.x + stroke_border.width / 2, stroke_border.y + stroke_border.height / 2),
-//            stroke_border);
-
     Stroke writingStroke;
-    writingStroke.stroke_mat = preProccessRes;  //�ʻ��Ҷ�ͼ
-    writingStroke.stroke_border = stroke_border;//�߽�
-    writingStroke.strokeBgColor = bgColor;      //����ɫ
-    writingStroke.centerPt = centerPt;          //����
-    writingStroke.main_part_border = mainPartBorder;//���ɷֱ߽�
-    writingStroke.original_points = original_points;//�ʻ��켣����
+
+    writingStroke.stroke_mat = preProccessRes;
+    writingStroke.stroke_border = stroke_border;
+    writingStroke.centerPt = centerPt;
+    writingStroke.main_part_border = mainPartBorder;
+    writingStroke.original_points = original_points;
     writingStroke.single_stroke_recognize_result = this->symbol_recognizer->recognizeSingleStroke(
-            writingStroke);//�ʻ�ʶ����
+            writingStroke);
 
     Document document;
     document.Parse(this->label_character_map.c_str());
@@ -68,6 +65,7 @@ Stroke Recognizer::StrokeClassifier::addStroke(list <Point> original_points) {
     writingStroke.direction.validWidth = cfg["validWidth"].GetBool();
 
     StrokeSet strokeSet;
+    strokeSet.id = std::rand();
     strokeSet.main_part_border = writingStroke.main_part_border;
     strokeSet.strokes.push_front(writingStroke);
     strokeSet.centerPt = writingStroke.centerPt;
@@ -81,7 +79,7 @@ Stroke Recognizer::StrokeClassifier::addStroke(list <Point> original_points) {
     this->calculateAvgStrokeWidthHeight();
     cout << "avgStrokeWidth->" << this->avgStrokeWidth << ";  avgStrokeHeight->" << this->avgStrokeHeight << endl;
 
-    this->getStrokeSet();
+//    this->getStrokeSet();
     return writingStroke;
 }
 
@@ -93,24 +91,6 @@ bool sortFractionStrokeSetByWidth(StrokeSet first, StrokeSet second) {
     return first.main_part_border.width < second.main_part_border.width;
 }
 
-list <StrokeSet>
-Recognizer::StrokeClassifier::gatherFractionStrokeItem(list <StrokeSet> strokeSets, StrokeSet fractionStrokeSet) {
-    list <StrokeSet> rtStrokeSets;
-    StrokeSet gatheredStrokeSet;
-    while (!strokeSets.empty()) {
-
-    }
-    for (auto it = strokeSets.cbegin(); it != strokeSets.cend(); ++it) {
-        StrokeSet strokeSet = *it;
-        StrokeSet st;
-        if (this->detectRectIntersect(strokeSet.main_part_border, fractionStrokeSet.main_part_border)) {
-//            st.strokes.push_back(strokeSet.strokes.)
-        } else {
-
-        }
-    }
-}
-
 list <StrokeSet> Recognizer::StrokeClassifier::getStrokeSetsByFractionBar() {
 
     /**************************找出笔画中所有的分数线*********************/
@@ -120,6 +100,7 @@ list <StrokeSet> Recognizer::StrokeClassifier::getStrokeSetsByFractionBar() {
     for (auto it = this->stroke_set.cbegin(); it != this->stroke_set.cend(); ++it) {
         StrokeSet strokeSet = *it;
         if (strokeSet.strokes.front().single_stroke_recognize_result == 11) {//减号或分数线
+            strokeSet.strokeSetType = FRACTION_BAR_STROKE_SET;
             fractionBarStrokeSets.push_back(strokeSet);
         } else {
             restStrokeSets.push_back(strokeSet);
@@ -130,14 +111,70 @@ list <StrokeSet> Recognizer::StrokeClassifier::getStrokeSetsByFractionBar() {
     cout << "faction bar sets size->" << fractionBarStrokeSets.size() << endl;
     cout << "rest stroke sets size->" << restStrokeSets.size() << endl;
     //根据分数比划获取分数的分子和分母的笔画
-    for (auto it = fractionBarStrokeSets.cbegin(); it != fractionBarStrokeSets.cend(); ++it) {
-        StrokeSet fractionBarStrokeSet = *it;
-        FractionAnalyzer fractionAnalyzer(this->restStrokeSets, fractionBarStrokeSet, this->avgStrokeHeight);
+    while (!fractionBarStrokeSets.empty()) {
+        StrokeSet fractionBarStrokeSet = fractionBarStrokeSets.front();
+        Mat res = combineStrokeMat(this->strokes, Size(400, 400));
+        const Scalar color(255);//画笔颜色
+        for (auto it = this->restStrokeSets.cbegin(); it != this->restStrokeSets.cend(); ++it) {
+            StrokeSet strokeSet1 = *it;
+            Mat res = combineStrokeMat(strokeSet1.strokes, Size(400, 400));
+            cout << "stroke set type->" << strokeSet1.strokeSetType << endl;
+            cout << "stroke set recognize->" << strokeSet1.recognizeResult << endl;
+//            imshow("Rest Before", res);
+//            waitKey(0);
+        }
+        FractionAnalyzer fractionAnalyzer(this->restStrokeSets,
+                                          fractionBarStrokeSets,
+                                          fractionBarStrokeSet,
+                                          this->avgStrokeHeight);
+
         this->restStrokeSets = fractionAnalyzer.restStrokeSets;
-        cout << "top:->" << fractionAnalyzer.topStrokeSets.size() << endl;
-        cout << "bottom:->" << fractionAnalyzer.bottomStrokeSets.size() << endl;
-        cout << "rest:->" << fractionAnalyzer.restStrokeSets.size() << endl;
+
+        Point centerPt = fractionBarStrokeSet.strokes.front().centerPt;
+        circle(res, centerPt, 5, color);
+
+//        imshow("add stroke", res);
+
+
+        fractionBarStrokeSets.pop_front();
+
+
+        cout << "strokeClassifier::getStrokeSetsByFractionBar fraction top:->" << fractionAnalyzer.topStrokeSets.size()
+             << endl;
+        cout << "strokeClassifier::getStrokeSetsByFractionBar fraction bottom:->"
+             << fractionAnalyzer.bottomStrokeSets.size() << endl;
+        cout << "strokeClassifier::getStrokeSetsByFractionBar rest fraction stroke size:->"
+             << fractionBarStrokeSets.size() << endl;
+        cout << "strokeClassifier::getStrokeSetsByFractionBar rest stroke size:->"
+             << fractionAnalyzer.restStrokeSets.size() << endl;
+        for (auto it = this->restStrokeSets.cbegin(); it != this->restStrokeSets.cend(); ++it) {
+            StrokeSet strokeSet1 = *it;
+            Mat res = combineStrokeMat(strokeSet1.strokes, Size(400, 400));
+            cout << "stroke set type->" << strokeSet1.strokeSetType << endl;
+            cout << "stroke set recognize->" << strokeSet1.recognizeResult << endl;
+//            imshow("Rest After", res);
+//            waitKey(0);
+        }
+//        waitKey(0);
     }
+//    for (auto it = fractionBarStrokeSets.cbegin(); it != fractionBarStrokeSets.cend(); ++it) {
+//        StrokeSet fractionBarStrokeSet = *it;
+//        Mat res = combineStrokeMat(this->strokes, Size(400, 400));
+//        const Scalar color(255);//画笔颜色
+//        FractionAnalyzer fractionAnalyzer(this->restStrokeSets,
+//                                          fractionBarStrokeSets,
+//                                          fractionBarStrokeSet,
+//                                          this->avgStrokeHeight);
+//
+//        this->restStrokeSets = fractionAnalyzer.restStrokeSets;
+//        cout << "top:->" << fractionAnalyzer.topStrokeSets.size() << endl;
+//        cout << "bottom:->" << fractionAnalyzer.bottomStrokeSets.size() << endl;
+//        cout << "rest:->" << fractionAnalyzer.restStrokeSets.size() << endl;
+//        Point centerPt = fractionBarStrokeSet.strokes.front().centerPt;
+//        circle(res, centerPt, 5, color);
+//        imshow("add stroke", res);
+//        waitKey(0);
+//    }
     return fractionBarStrokeSets;
 }
 

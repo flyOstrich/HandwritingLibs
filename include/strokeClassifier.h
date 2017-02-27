@@ -11,8 +11,7 @@ namespace Recognizer {
     private:
         //按照分数线找出所有属于分数的笔画
         list <StrokeSet> getStrokeSetsByFractionBar();
-        //找出分数先上方及下方的内容
-        list <StrokeSet> gatherFractionStrokeItem(list <StrokeSet> strokeSets, StrokeSet fractionStrokeSet);
+
     public:
         //笔画与笔画之间的方位关系
         //共分为8种

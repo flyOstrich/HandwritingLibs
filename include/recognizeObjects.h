@@ -3,7 +3,8 @@
 #include "common.h"
 
 enum StrokeSetType {
-    FRACTION_STROKE_SET,
+    FRACTION_BAR_STROKE_SET,
+    FRACTION_EXP_STROKE_SET,
     NORMAL_STROKE_SET
 };
 
@@ -38,10 +39,12 @@ struct Stroke {
 };
 
 struct StrokeSet {
+    int id;
     list <Stroke> strokes;
     Rect main_part_border;
     Point centerPt;
     StrokeSetType strokeSetType;
+    bool isFractionBarFlag = true;
     int recognizeResult = -1; //识别结果，-1表示还未识别
     /*
      * 判断识别结果是否为数字
@@ -49,6 +52,11 @@ struct StrokeSet {
     bool isNumber() {
         return recognizeResult >= 0 && recognizeResult <= 9;
     };
+
+    bool isFractionBar() {
+        return recognizeResult == 11 && isFractionBarFlag;
+    }
+
     list <StrokeSet> top;
     list <StrokeSet> bottom;
     list <StrokeSet> left;

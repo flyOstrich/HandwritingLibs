@@ -3,24 +3,25 @@
 
 using namespace Util;
 
-void showFactionsIteration(list <StrokeSet> strokeSets,string direction="none") {
+void showFactionsIteration(list <StrokeSet> strokeSets, string direction = "none") {
     for (auto it = strokeSets.cbegin(); it != strokeSets.cend(); ++it) {
         StrokeSet strokeSet = *it;
-        cout<<"debug::StrokeSet Type->"<<direction<<" "<<(strokeSet.strokeSetType==FRACTION_STROKE_SET)<<endl;
+        cout << "debug::StrokeSet Type->" << direction << " " << (strokeSet.strokeSetType == FRACTION_EXP_STROKE_SET)
+             << endl;
 
-        if (strokeSet.strokeSetType == FRACTION_STROKE_SET) {
+        if (strokeSet.strokeSetType == FRACTION_EXP_STROKE_SET) {
+            cout << "debug::top size" << strokeSet.top.size() << endl;
+            cout << "debug::bottom size" << strokeSet.bottom.size() << endl;
             Mat combinedMat = DebugUtil::combineStrokeMat(strokeSet.strokes, Size(400, 400));
             imshow("frac", combinedMat);
             cvWaitKey(0);
-            cout<<"debug::top size"<<strokeSet.top.size()<<endl;
-            cout<<"debug::bottom size"<<strokeSet.bottom.size()<<endl;
             if (strokeSet.top.size() > 0) {
-                showFactionsIteration(strokeSet.top,"top");
+                showFactionsIteration(strokeSet.top, "top");
             }
             if (strokeSet.bottom.size() > 0) {
-                showFactionsIteration(strokeSet.bottom,"bottom");
+                showFactionsIteration(strokeSet.bottom, "bottom");
             }
-        }else{
+        } else {
 //            Mat combinedMat = DebugUtil::combineStrokeMat(strokeSet.strokes, Size(400, 400));
 //            imshow("not frac", combinedMat);
 //            cvWaitKey(0);
@@ -148,4 +149,14 @@ Mat DebugUtil::combineStrokeMat(list <Stroke> strokes, Size target_size) {
 //        }
 //    }
     return combinedMat;
+}
+
+void DebugUtil::drawCenterPtForStroke(Stroke stroke) {
+    const Scalar color(150);//画笔颜色
+    circle(stroke.stroke_mat, stroke.centerPt, 5, color);
+}
+
+void DebugUtil::drawBorderForStroke(Stroke stroke, Rect border) {
+    const Scalar color(150);//画笔颜色
+    rectangle(stroke.stroke_mat, border, color);
 }

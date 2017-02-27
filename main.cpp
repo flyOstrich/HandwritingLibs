@@ -72,6 +72,7 @@ void testStrokeClassifier(){
         list <Point> stroke_points = JsonUtil::getPointListFromJsonString(s);
         classifier.addStroke(stroke_points);
     }
+    classifier.getStrokeSet();
     DebugUtil::showFractions(classifier.restStrokeSets);
 //    for (auto it = classifier.restStrokeSets.cbegin(); it != classifier.restStrokeSets.cend(); ++it) {
 //        StrokeSet strokeSet=*it;
@@ -81,8 +82,9 @@ void testStrokeClassifier(){
 }
 
 int main() {
-    train();
-    draw_and_recognize();
+//    train();
+//    draw_and_recognize();
+
     testStrokeClassifier();
     return 0;
 }

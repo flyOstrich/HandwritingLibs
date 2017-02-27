@@ -10,6 +10,7 @@ public:
     list <StrokeSet> topStrokeSets;//分子笔画列表
     list <StrokeSet> bottomStrokeSets;//分母笔画列表
     list <StrokeSet> restStrokeSets;
+    list <StrokeSet> fractionStrokeSets;
     StrokeSet fractionStrokeSet;
     float avgStrokeHeight;
 
@@ -31,7 +32,7 @@ public:
      * @param fractionStrokeSet 分数线笔画集
      * @return
      */
-    bool checkIfCanAddToTop(StrokeSet strokeSet,StrokeSet fractionStrokeSet);
+    bool checkIfCanAddToTop(StrokeSet strokeSet, StrokeSet fractionStrokeSet);
 
     /**
      * 检查笔画集strokeSet 能否被添加到分数的分母笔画集合
@@ -39,7 +40,10 @@ public:
      * @param fractionStrokeSet 分数线笔画集
      * @return
      */
-    bool checkIfCanAddToBottom(StrokeSet strokeSet,StrokeSet fractionStrokeSet);
+    bool checkIfCanAddToBottom(StrokeSet strokeSet, StrokeSet fractionStrokeSet);
 
-    FractionAnalyzer(list <StrokeSet> strokeSets, StrokeSet fractionStrokeSet, float avgStrokeHeight);
+    FractionAnalyzer(list <StrokeSet> strokeSets,
+                     list <StrokeSet> fractionStrokeSets,
+                     StrokeSet fractionStrokeSet,
+                     float avgStrokeHeight);
 };

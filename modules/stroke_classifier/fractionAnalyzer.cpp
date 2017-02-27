@@ -1,11 +1,17 @@
 #include "fractionAnalyzer/fractionAnalyzer.h"
+#include "debugUtil.h"
 
-FractionAnalyzer::FractionAnalyzer(list <StrokeSet> strokeSets, StrokeSet fractionStrokeSet, float avgStrokeHeight) {
+using namespace DebugUtil;
+
+FractionAnalyzer::FractionAnalyzer(list <StrokeSet> strokeSets, list <StrokeSet> fractionStrokeSets,
+                                   StrokeSet fractionStrokeSet, float avgStrokeHeight) {
     this->inputStrokeSets = strokeSets;
+    this->fractionStrokeSets = fractionStrokeSets;
     this->restStrokeSets = strokeSets;
     this->fractionStrokeSet = fractionStrokeSet;
     this->avgStrokeHeight = avgStrokeHeight;
     this->findTopAndBottomStrokeSet();
+
 }
 
 bool sortDesc(StrokeSet strokeSet1, StrokeSet strokeSet2) {
@@ -16,23 +22,67 @@ bool sortAsc(StrokeSet strokeSet1, StrokeSet strokeSet2) {
     return strokeSet1.centerPt.y > strokeSet2.centerPt.y;
 }
 
+bool isFractionStrokeSetAndFractionBarStrokeSetIntersect(StrokeSet fractionStrokeSet, StrokeSet fractionBarStrokeSet) {
+    return (fractionBarStrokeSet.main_part_border.x <= fractionStrokeSet.main_part_border.x &&
+            fractionBarStrokeSet.main_part_border.x + fractionBarStrokeSet.main_part_border.width
+            >= fractionStrokeSet.main_part_border.x)
+           || (fractionStrokeSet.main_part_border.x <= fractionBarStrokeSet.main_part_border.x
+               && fractionStrokeSet.main_part_border.x + fractionStrokeSet.main_part_border.width
+                  >= fractionBarStrokeSet.main_part_border.x);
+}
+
 bool FractionAnalyzer::findTopAndBottomStrokeSet() {
     StrokeSet strokeSet;
-    Point centerPt;
     list <StrokeSet> rStrokeSets;
     bool topFound = false;
     bool bottomFound = false;
-
+    cout << "fraction stroke sets size" << fractionStrokeSets.size() << endl;
     //first.找出X方向位于分数线以内的所有笔画集合
     list <StrokeSet> xAxisSatisfiedStrokeSets;
     for (auto it = this->restStrokeSets.cbegin(); it != this->restStrokeSets.cend(); ++it) {
         strokeSet = *it;
-        if (strokeSet.centerPt.x >= fractionStrokeSet.main_part_border.x
-            &&
+        if (strokeSet.strokeSetType == NORMAL_STROKE_SET &&
+            strokeSet.centerPt.x >= fractionStrokeSet.main_part_border.x &&
             strokeSet.centerPt.x <= fractionStrokeSet.main_part_border.x + fractionStrokeSet.main_part_border.width) {
+            strokeSet.isFractionBarFlag = false;
             xAxisSatisfiedStrokeSets.push_back(strokeSet);
+            if (strokeSet.recognizeResult == 11) {
+                cout << "++++++++++++++++++++++" << strokeSet.isFractionBar() << endl;
+            }
+            Mat res = combineStrokeMat(strokeSet.strokes, Size(400, 400));
+            cout << strokeSet.main_part_border << endl;
+            cout << fractionStrokeSet.main_part_border << endl;
+//            imshow("x Axis", res);
+//            waitKey(0);
+        } else if (strokeSet.strokeSetType == FRACTION_EXP_STROKE_SET &&
+                   isFractionStrokeSetAndFractionBarStrokeSetIntersect(strokeSet, this->fractionStrokeSet)) {
+            strokeSet.isFractionBarFlag = false;
+            xAxisSatisfiedStrokeSets.push_back(strokeSet);
+            Mat res = combineStrokeMat(strokeSet.strokes, Size(400, 400));
+            cout << strokeSet.main_part_border << endl;
+            cout << fractionStrokeSet.main_part_border << endl;
+//            imshow("x Axis Exp", res);
         } else {
             rStrokeSets.push_back(strokeSet);
+            cout << " FractionAnalyzer::findTopAndBottomStrokeSet  push rStrokeSets 1->" << rStrokeSets.size() << " "
+                 << strokeSet.id << "->"
+                 << (strokeSet.strokeSetType == FRACTION_BAR_STROKE_SET) << endl;
+            Mat res = combineStrokeMat(strokeSet.strokes, Size(400, 400));
+
+//            imshow("x Axis Rest", res);
+//            waitKey(0);
+
+            cout << strokeSet.main_part_border << endl;
+            cout << fractionStrokeSet.main_part_border << endl;
+
+        }
+    }
+    for (auto it = this->fractionStrokeSets.cbegin(); it != this->fractionStrokeSets.cend(); ++it) {
+        strokeSet = *it;
+        if (strokeSet.id != fractionStrokeSet.id &&
+            strokeSet.centerPt.x >= fractionStrokeSet.main_part_border.x &&
+            strokeSet.centerPt.x <= fractionStrokeSet.main_part_border.x + fractionStrokeSet.main_part_border.width) {
+            xAxisSatisfiedStrokeSets.push_back(strokeSet);
         }
     }
     cout << "xAxisSatisfiedStrokeSets size->" << xAxisSatisfiedStrokeSets.size() << endl;
@@ -49,15 +99,21 @@ bool FractionAnalyzer::findTopAndBottomStrokeSet() {
     }
     yAxisTopSatisfiedStrokeSets.sort(sortAsc);
     yAxisBottomSatisfiedStrokeSets.sort(sortDesc);
-    cout << "top size->" << yAxisTopSatisfiedStrokeSets.size() << endl;
-    cout << "bottom size->" << yAxisBottomSatisfiedStrokeSets.size() << endl;
+
     //third.找出分数线上方包围盒y轴相交的所有笔画，加入分子笔画集合
     Rect tYRect = yAxisTopSatisfiedStrokeSets.front().main_part_border;
     int yMin = tYRect.y;
     int yMax = tYRect.y + tYRect.height;
+    int idx = 0;
     while (!yAxisTopSatisfiedStrokeSets.empty()) {
         cout << "while1" << endl;
         StrokeSet frontStrokeSet = yAxisTopSatisfiedStrokeSets.front();
+        if (idx == 0 && frontStrokeSet.isFractionBar()) {
+            cout << "top nearest is fraction bar!" << endl;
+//            imshow("front fraction bar",combineStrokeMat(frontStrokeSet.strokes,Size(400,400)));
+            break;
+        };
+        idx++;
         Rect r = frontStrokeSet.main_part_border;
         if ((r.y >= tYRect.y && r.y <= tYRect.y + tYRect.height)
             || (r.y + r.height >= tYRect.y && r.y + r.height <= tYRect.y + tYRect.height)) {
@@ -67,8 +123,20 @@ bool FractionAnalyzer::findTopAndBottomStrokeSet() {
             tYRect.y = yMin;
             tYRect.height = yMax - yMin;
             topFound = true;
+            cout<<"***********top found->"<<strokeSet.strokeSetType<<endl;
         } else {
-            rStrokeSets.push_back(frontStrokeSet);
+            if (frontStrokeSet.strokeSetType != FRACTION_BAR_STROKE_SET) {
+                rStrokeSets.push_back(frontStrokeSet);
+                Mat res = combineStrokeMat(strokeSet.strokes, Size(400, 400));
+                cout << strokeSet.main_part_border << endl;
+                cout << fractionStrokeSet.main_part_border << endl;
+//                imshow("x Axis Rest", res);
+//                waitKey(0);
+                cout << " FractionAnalyzer::findTopAndBottomStrokeSet  push rStrokeSets 2->" << rStrokeSets.size()
+                     << "->"
+                     << (frontStrokeSet.strokeSetType == FRACTION_BAR_STROKE_SET)
+                     << " " << frontStrokeSet.id << endl;
+            }
         }
         yAxisTopSatisfiedStrokeSets.pop_front();
     }
@@ -76,10 +144,15 @@ bool FractionAnalyzer::findTopAndBottomStrokeSet() {
     tYRect = yAxisBottomSatisfiedStrokeSets.front().main_part_border;
     yMin = tYRect.y;
     yMax = tYRect.y + tYRect.height;
+    idx = 0;
     while (!yAxisBottomSatisfiedStrokeSets.empty()) {
-        cout << "while2" << endl;
-
         StrokeSet frontStrokeSet = yAxisBottomSatisfiedStrokeSets.front();
+        if (idx == 0 && frontStrokeSet.isFractionBar()) {
+            cout << "bottom nearest is fraction bar!" << endl;
+//            imshow("front fraction bar",combineStrokeMat(frontStrokeSet.strokes,Size(400,400)));
+            break;
+        };
+        idx++;
         Rect r = frontStrokeSet.main_part_border;
         if ((r.y >= tYRect.y && r.y <= tYRect.y + tYRect.height)
             || (r.y + r.height >= tYRect.y && r.y + r.height <= tYRect.y + tYRect.height)) {
@@ -89,8 +162,20 @@ bool FractionAnalyzer::findTopAndBottomStrokeSet() {
             tYRect.y = yMin;
             tYRect.height = yMax - yMin;
             bottomFound = true;
+            cout<<"***********bottom found->"<<strokeSet.strokeSetType<<endl;
+
         } else {
-            rStrokeSets.push_back(frontStrokeSet);
+            if (frontStrokeSet.strokeSetType != FRACTION_BAR_STROKE_SET) {
+                rStrokeSets.push_back(frontStrokeSet);
+                Mat res = combineStrokeMat(strokeSet.strokes, Size(400, 400));
+                cout << strokeSet.main_part_border << endl;
+                cout << fractionStrokeSet.main_part_border << endl;
+//                imshow("x Axis Rest", res);
+//                waitKey(0);
+                cout << " FractionAnalyzer::findTopAndBottomStrokeSet  push rStrokeSets 3->" << rStrokeSets.size()
+                     << " " << frontStrokeSet.id << endl;
+            }
+
         }
         yAxisBottomSatisfiedStrokeSets.pop_front();
     }
@@ -99,12 +184,18 @@ bool FractionAnalyzer::findTopAndBottomStrokeSet() {
         this->restStrokeSets = rStrokeSets;
         this->fractionStrokeSet.top = this->topStrokeSets;
         this->fractionStrokeSet.bottom = this->bottomStrokeSets;
-        this->fractionStrokeSet.strokeSetType = FRACTION_STROKE_SET;
+        this->fractionStrokeSet.strokeSetType = FRACTION_EXP_STROKE_SET;
         this->mergeStrokesAndReCalculateMainPartBorder();
         this->restStrokeSets.push_back(this->fractionStrokeSet);
         return true;
     }
+    cout << "did not found items" << endl;
+//    imshow("fraction bar",combineStrokeMat(this->fractionStrokeSet.strokes,Size(400,400)));
+    this->fractionStrokeSet.isFractionBarFlag = false;
     this->restStrokeSets.push_back(this->fractionStrokeSet);
+//    imshow("add to rest",combineStrokeMat(this->fractionStrokeSet.strokes,Size(400,400)));
+
+
     return false;
 }
 
@@ -139,7 +230,6 @@ void FractionAnalyzer::mergeStrokesAndReCalculateMainPartBorder() {
     }
     Rect outerBox(xMin, yMin, xMax - xMin, yMax - yMin);
     this->fractionStrokeSet.main_part_border = outerBox;
-    cout << outerBox << endl;
 
 }
 
