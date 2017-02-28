@@ -74,16 +74,11 @@ void testStrokeClassifier(){
     }
     classifier.getStrokeSet();
     DebugUtil::showFractions(classifier.restStrokeSets);
-//    for (auto it = classifier.restStrokeSets.cbegin(); it != classifier.restStrokeSets.cend(); ++it) {
-//        StrokeSet strokeSet=*it;
-//        cout<<"item"<<endl;
-//    }
-    cout<<"end"<<endl;
 }
 
 int main() {
 //    train();
-//    draw_and_recognize();
+    draw_and_recognize();
 
     testStrokeClassifier();
     return 0;

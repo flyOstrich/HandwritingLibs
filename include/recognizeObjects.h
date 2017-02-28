@@ -40,6 +40,9 @@ struct Stroke {
 
 struct StrokeSet {
     int id;
+    //该笔画集所占行高，默认为1，如果形如 frac{1}{2}（二分之一）这种形式，则行高为2
+    //形如 frac{1}{frac{1}{2}}这种形式行高为3，以此类推
+    int lineHeight = 1;
     list <Stroke> strokes;
     Rect main_part_border;
     Point centerPt;

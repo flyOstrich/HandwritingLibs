@@ -27,20 +27,11 @@ public:
     bool findTopAndBottomStrokeSet();
 
     /**
-     * 检查笔画集strokeSet 能否被添加到分数的分子笔画集合
-     * @param strokeSet 将被判断的笔画集
-     * @param fractionStrokeSet 分数线笔画集
+     * 获取分数的行高
      * @return
      */
-    bool checkIfCanAddToTop(StrokeSet strokeSet, StrokeSet fractionStrokeSet);
+    int getFractionLineHeight();
 
-    /**
-     * 检查笔画集strokeSet 能否被添加到分数的分母笔画集合
-     * @param strokeSet 将被判断的笔画集
-     * @param fractionStrokeSet 分数线笔画集
-     * @return
-     */
-    bool checkIfCanAddToBottom(StrokeSet strokeSet, StrokeSet fractionStrokeSet);
 
     FractionAnalyzer(list <StrokeSet> strokeSets,
                      list <StrokeSet> fractionStrokeSets,

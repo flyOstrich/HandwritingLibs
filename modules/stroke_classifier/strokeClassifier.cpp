@@ -79,7 +79,6 @@ Stroke Recognizer::StrokeClassifier::addStroke(list <Point> original_points) {
     this->calculateAvgStrokeWidthHeight();
     cout << "avgStrokeWidth->" << this->avgStrokeWidth << ";  avgStrokeHeight->" << this->avgStrokeHeight << endl;
 
-//    this->getStrokeSet();
     return writingStroke;
 }
 
@@ -92,7 +91,8 @@ bool sortFractionStrokeSetByWidth(StrokeSet first, StrokeSet second) {
 }
 
 list <StrokeSet> Recognizer::StrokeClassifier::getStrokeSetsByFractionBar() {
-
+    imshow("original image",combineStrokeMat(this->strokes,Size(400,400)));
+    waitKey(0);
     /**************************找出笔画中所有的分数线*********************/
     cout << "**************************find all fraction bars *********************" << endl;
     list <StrokeSet> fractionBarStrokeSets;
@@ -115,14 +115,6 @@ list <StrokeSet> Recognizer::StrokeClassifier::getStrokeSetsByFractionBar() {
         StrokeSet fractionBarStrokeSet = fractionBarStrokeSets.front();
         Mat res = combineStrokeMat(this->strokes, Size(400, 400));
         const Scalar color(255);//画笔颜色
-        for (auto it = this->restStrokeSets.cbegin(); it != this->restStrokeSets.cend(); ++it) {
-            StrokeSet strokeSet1 = *it;
-            Mat res = combineStrokeMat(strokeSet1.strokes, Size(400, 400));
-            cout << "stroke set type->" << strokeSet1.strokeSetType << endl;
-            cout << "stroke set recognize->" << strokeSet1.recognizeResult << endl;
-//            imshow("Rest Before", res);
-//            waitKey(0);
-        }
         FractionAnalyzer fractionAnalyzer(this->restStrokeSets,
                                           fractionBarStrokeSets,
                                           fractionBarStrokeSet,
@@ -133,8 +125,8 @@ list <StrokeSet> Recognizer::StrokeClassifier::getStrokeSetsByFractionBar() {
         Point centerPt = fractionBarStrokeSet.strokes.front().centerPt;
         circle(res, centerPt, 5, color);
 
-//        imshow("add stroke", res);
-
+        imshow("add stroke", res);
+        waitKey(0);
 
         fractionBarStrokeSets.pop_front();
 
@@ -147,34 +139,7 @@ list <StrokeSet> Recognizer::StrokeClassifier::getStrokeSetsByFractionBar() {
              << fractionBarStrokeSets.size() << endl;
         cout << "strokeClassifier::getStrokeSetsByFractionBar rest stroke size:->"
              << fractionAnalyzer.restStrokeSets.size() << endl;
-        for (auto it = this->restStrokeSets.cbegin(); it != this->restStrokeSets.cend(); ++it) {
-            StrokeSet strokeSet1 = *it;
-            Mat res = combineStrokeMat(strokeSet1.strokes, Size(400, 400));
-            cout << "stroke set type->" << strokeSet1.strokeSetType << endl;
-            cout << "stroke set recognize->" << strokeSet1.recognizeResult << endl;
-//            imshow("Rest After", res);
-//            waitKey(0);
-        }
-//        waitKey(0);
     }
-//    for (auto it = fractionBarStrokeSets.cbegin(); it != fractionBarStrokeSets.cend(); ++it) {
-//        StrokeSet fractionBarStrokeSet = *it;
-//        Mat res = combineStrokeMat(this->strokes, Size(400, 400));
-//        const Scalar color(255);//画笔颜色
-//        FractionAnalyzer fractionAnalyzer(this->restStrokeSets,
-//                                          fractionBarStrokeSets,
-//                                          fractionBarStrokeSet,
-//                                          this->avgStrokeHeight);
-//
-//        this->restStrokeSets = fractionAnalyzer.restStrokeSets;
-//        cout << "top:->" << fractionAnalyzer.topStrokeSets.size() << endl;
-//        cout << "bottom:->" << fractionAnalyzer.bottomStrokeSets.size() << endl;
-//        cout << "rest:->" << fractionAnalyzer.restStrokeSets.size() << endl;
-//        Point centerPt = fractionBarStrokeSet.strokes.front().centerPt;
-//        circle(res, centerPt, 5, color);
-//        imshow("add stroke", res);
-//        waitKey(0);
-//    }
     return fractionBarStrokeSets;
 }
 
