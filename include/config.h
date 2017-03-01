@@ -20,3 +20,4 @@
 #define LEFT_SLASH 19 //左斜杠
 #define RIGHT_SLASH 20 //右斜杠
 #define PLUS_LABEL 12//乘号
+#define FIRST_OF_FIVE 21//数字“5”的第一笔
