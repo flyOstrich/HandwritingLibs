@@ -8,4 +8,6 @@ namespace DebugUtil {
     void drawCenterPtForStroke(Stroke stroke);
 
     void drawBorderForStroke(Stroke stroke, Rect border);
+
+    void showStrokeSets(list <StrokeSet> strokeSets);
 }

@@ -16,5 +16,9 @@
   "14":{"validHeight":true,"validWidth":true,"val":"±","top":false,"bottom":false, "rbottom":false,"rtop":false,"lbottom":false,"ltop":false},
   "15":{"validHeight":true,"validWidth":true,"val":"≥","top":false,"bottom":false, "rbottom":false,"rtop":false,"lbottom":false,"ltop":false},
   "16":{"validHeight":true,"validWidth":true,"val":"≤","top":false,"bottom":false, "rbottom":false,"rtop":false,"lbottom":false,"ltop":false},
-  "17":{"validHeight":false,"validWidth":false,"val":".","top":false,"bottom":false,  "rbottom":false,"rtop":false,"lbottom":false,"ltop":false}
+  "17":{"validHeight":false,"validWidth":false,"val":".","top":false,"bottom":false,  "rbottom":false,"rtop":false,"lbottom":false,"ltop":false},
+  "18":{"validHeight":true,"validWidth":true,"val":"=","top":false,"bottom":false,  "rbottom":false,"rtop":false,"lbottom":false,"ltop":false},
+  "19":{"validHeight":true,"validWidth":true,"val":"/", "description":"","top":false,"bottom":false,  "rbottom":false,"rtop":false,"lbottom":false,"ltop":false},
+  "20":{"validHeight":true,"validWidth":true,"val":"\\","description":"","top":false,"bottom":false,  "rbottom":false,"rtop":false,"lbottom":false,"ltop":false},
+  "21":{"validHeight":true,"validWidth":true,"val":"5", "description":"数字5的第一笔","top":false,"bottom":false,  "rbottom":false,"rtop":false,"lbottom":false,"ltop":false}
 }

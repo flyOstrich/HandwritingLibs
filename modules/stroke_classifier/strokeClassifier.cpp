@@ -4,8 +4,11 @@
 #include "config.h"
 #include <fstream>
 #include "type-util.h"
-#include "fractionAnalyzer/fractionAnalyzer.h"
 #include "debugUtil.h"
+#include "fractionAnalyzer.h"
+#include "addAnalyzer.h"
+#include "equAnalyzer.h"
+#include "plusAnalyzer.h"
 
 using namespace Util;
 using namespace DebugUtil;
@@ -83,6 +86,10 @@ Stroke Recognizer::StrokeClassifier::addStroke(list <Point> original_points) {
 }
 
 void Recognizer::StrokeClassifier::getStrokeSet() {
+    this->getPlusStrokeSets();
+    this->getEquStrokeSets();
+    this->getAddStrokeSets();
+    showStrokeSets(this->stroke_set);
     list <StrokeSet> strokeSets = this->getStrokeSetsByFractionBar();
 }
 
@@ -90,16 +97,37 @@ bool sortFractionStrokeSetByWidth(StrokeSet first, StrokeSet second) {
     return first.main_part_border.width < second.main_part_border.width;
 }
 
+void Recognizer::StrokeClassifier::getAddStrokeSets() {
+    AddAnalyzer addAnalyzer(this->stroke_set);
+    this->stroke_set = addAnalyzer.outputStrokeSets;
+//    showStrokeSets(this->stroke_set);
+    cout << "restStrokeSets after find plus" << this->stroke_set.size() << endl;
+}
+
+void Recognizer::StrokeClassifier::getEquStrokeSets() {
+    EquAnalyzer equAnalyzer(this->stroke_set, this->avgStrokeHeight);
+    this->stroke_set = equAnalyzer.outputStrokeSets;
+//    showStrokeSets(this->stroke_set);
+    cout << "restStrokeSets after find equ" << this->stroke_set.size() << endl;
+}
+
+void Recognizer::StrokeClassifier::getPlusStrokeSets() {
+    PlusAnalyzer plusAnalyzer(this->stroke_set);
+    this->stroke_set = plusAnalyzer.outputStrokeSets;
+//    showStrokeSets(this->stroke_set);
+}
+
 list <StrokeSet> Recognizer::StrokeClassifier::getStrokeSetsByFractionBar() {
-    imshow("original image",combineStrokeMat(this->strokes,Size(400,400)));
+    imshow("original image", combineStrokeMat(this->strokes, Size(400, 400)));
     waitKey(0);
     /**************************找出笔画中所有的分数线*********************/
     cout << "**************************find all fraction bars *********************" << endl;
     list <StrokeSet> fractionBarStrokeSets;
     list <StrokeSet> restStrokeSets;
+    cout << "restStrokeSets start find frac" << this->stroke_set.size() << endl;
     for (auto it = this->stroke_set.cbegin(); it != this->stroke_set.cend(); ++it) {
         StrokeSet strokeSet = *it;
-        if (strokeSet.strokes.front().single_stroke_recognize_result == 11) {//减号或分数线
+        if (strokeSet.recognizeResult == MINUS_OR_FRACTION_BAR_LABEL) {//减号或分数线
             strokeSet.strokeSetType = FRACTION_BAR_STROKE_SET;
             fractionBarStrokeSets.push_back(strokeSet);
         } else {

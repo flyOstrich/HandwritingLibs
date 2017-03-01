@@ -18,7 +18,7 @@ using namespace rapidjson;
 void draw_and_recognize() {
     MouseHelper4OpenCV helper(STROKE_FILE);
     Mat res = helper.MouseDraw("开始画画吧", Mat(400, 400, CV_8UC3, Scalar(0, 0, 0)), Scalar(255, 255, 255), 1);
-    string label = "17";
+    string label = "21";
     Recognizer::SymbolRecognizer recognizer(Size(400, 400), TRAIN_IMAGE_DIR, label);
     ifstream in(STROKE_FILE);
     if (!in.is_open()) {
@@ -34,12 +34,13 @@ void draw_and_recognize() {
         list <Point> stroke_points = JsonUtil::getPointListFromJsonString(s);
         recognizer.pushStroke(stroke_points, "aaaaa" + idx);
     }
-//    recognizer.recognize();
-//    Mat final = recognizer.combineStrokeMat(recognizer.strokes);
-//    imshow("result", final);
+    recognizer.recognize();
+    Mat final = recognizer.combineStrokeMat(recognizer.strokes);
+    imshow("result", final);
     waitKey(0);
 //    cv::ml::RTrees::Flags::PREDICT_SUM
 }
+
 
 void train() {
     Trainer::ImageLoader imageLoader;
@@ -56,8 +57,8 @@ void train() {
     hogComputer.trainSvm(train_data, SVM_MODEL_FILE);
 }
 
-void testStrokeClassifier(){
-    Recognizer::StrokeClassifier classifier(Size(400,400));
+void testStrokeClassifier() {
+    Recognizer::StrokeClassifier classifier(Size(400, 400));
     ifstream in(STROKE_FILE);
     if (!in.is_open()) {
         cout << "open file error" << endl;
@@ -77,9 +78,8 @@ void testStrokeClassifier(){
 }
 
 int main() {
-//    train();
+    train();
     draw_and_recognize();
-
-    testStrokeClassifier();
+//    testStrokeClassifier();
     return 0;
 }

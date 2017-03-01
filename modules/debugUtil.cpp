@@ -160,3 +160,11 @@ void DebugUtil::drawBorderForStroke(Stroke stroke, Rect border) {
     const Scalar color(150);//画笔颜色
     rectangle(stroke.stroke_mat, border, color);
 }
+
+void DebugUtil::showStrokeSets(list <StrokeSet> strokeSets) {
+    for (auto it = strokeSets.cbegin(); it != strokeSets.cend(); ++it) {
+        StrokeSet strokeSet = *it;
+        imshow("DebugUtil::showStrokeSets", combineStrokeMat(strokeSet.strokes, Size(400, 400)));
+        waitKey(0);
+    }
+}

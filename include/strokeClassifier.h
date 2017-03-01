@@ -1,5 +1,4 @@
 #pragma once
-
 #include "recognizeObjects.h"
 #include "recognizer.h"
 
@@ -11,6 +10,15 @@ namespace Recognizer {
     private:
         //按照分数线找出所有属于分数的笔画
         list <StrokeSet> getStrokeSetsByFractionBar();
+
+        //按照横竖相交的关系识别加号
+        void getAddStrokeSets();
+
+        //识别等号
+        void getEquStrokeSets();
+
+        //识别乘号
+        void getPlusStrokeSets();
 
     public:
         //笔画与笔画之间的方位关系
@@ -81,11 +89,12 @@ namespace Recognizer {
         Return:         位置关系
        *************************************************/
         Position getPosition(Stroke firstStroke, Stroke secondStroke);
+
         /*************************************************
           Function:       detectRectIntersect
           Description:    计算两个矩形是否相交
         *************************************************/
-        bool detectRectIntersect(Rect rect1,Rect rect2);
+        bool detectRectIntersect(Rect rect1, Rect rect2);
 
     };
 }

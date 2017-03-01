@@ -1,4 +1,4 @@
-#include "fractionAnalyzer/fractionAnalyzer.h"
+#include "fractionAnalyzer.h"
 #include "debugUtil.h"
 
 using namespace DebugUtil;
@@ -48,7 +48,7 @@ bool FractionAnalyzer::findTopAndBottomStrokeSet() {
     list <StrokeSet> xAxisSatisfiedStrokeSets;
     for (auto it = this->restStrokeSets.cbegin(); it != this->restStrokeSets.cend(); ++it) {
         strokeSet = *it;
-        if (strokeSet.strokeSetType == NORMAL_STROKE_SET &&
+        if ((strokeSet.strokeSetType == NORMAL_STROKE_SET||strokeSet.strokeSetType==ADD_EXP_STROKE_SET) &&
             strokeSet.centerPt.x >= fractionStrokeSet.main_part_border.x &&
             strokeSet.centerPt.x <= fractionStrokeSet.main_part_border.x + fractionStrokeSet.main_part_border.width) {
             strokeSet.isFractionBarFlag = false;
@@ -117,7 +117,7 @@ bool FractionAnalyzer::findTopAndBottomStrokeSet() {
         tYRect.height = yMax - yMin;
         idx++;
         if (std::abs(frontStrokeSet.centerPt.y - this->fractionStrokeSet.centerPt.y) <=
-            topMaxLineHeight * this->avgStrokeHeight * 1.5) {
+            topMaxLineHeight * this->avgStrokeHeight * 2) {
             this->topStrokeSets.push_back(frontStrokeSet);
             topFound = true;
         } else {
@@ -154,7 +154,7 @@ bool FractionAnalyzer::findTopAndBottomStrokeSet() {
         tYRect.height = yMax - yMin;
         idx++;
         if (std::abs(frontStrokeSet.centerPt.y - this->fractionStrokeSet.centerPt.y) <=
-            bottomMaxLineHeight * this->avgStrokeHeight * 1.5) {
+            bottomMaxLineHeight * this->avgStrokeHeight * 2) {
             this->bottomStrokeSets.push_back(frontStrokeSet);
             bottomFound = true;
         } else {

@@ -225,6 +225,7 @@ list <list<string>> Recognizer::SymbolRecognizer::recognize() {
     Document document;
     document.Parse(this->label_character_map.c_str());
     Value label_character_m = document.GetObject();
+    cout<<" Recognizer::SymbolRecognizer::recognize"<<endl;
     list <Stroke> strokes = this->strokes;
     this->clusterAnalyzer.cluster_max_height = this->calculateAvgRowHeight(strokes);
     list <Category> categories = this->clusterAnalyzer.getRecognizeUnitsForCategories(strokes);
@@ -256,6 +257,10 @@ list <list<string>> Recognizer::SymbolRecognizer::recognize() {
 //                resa.pop_front();
 //            }
             string key = TypeConverter::int2String(rec_label);
+
+            Document document;
+            document.Parse(this->label_character_map.c_str());
+            Value label_character_m = document.GetObject();
             Value cfg = label_character_m[key.c_str()].GetObject();
             string res = cfg["val"].GetString();
             rowResult.push_front(res);
