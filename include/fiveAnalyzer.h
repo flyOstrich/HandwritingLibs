@@ -28,6 +28,13 @@ private:
       * 找出乘号的笔画集迭代函数
       */
     bool findFiveStrokeSetsIteration();
+    /**
+     * 判断5的第二笔是否在第一笔的右上方，并且包围盒相交
+     * @param strokeSet1 "5"的第一笔
+     * @param strokeSet2“5”的第二笔“-”
+     * @return
+     */
+    bool isSatisfyingTopRightCriteria(StrokeSet strokeSet1,StrokeSet strokeSet2);
 
     void calculateOuterBoxAndCenterPt(StrokeSet strokeSet1, StrokeSet strokeSet2);
 

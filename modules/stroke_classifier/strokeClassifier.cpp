@@ -9,6 +9,8 @@
 #include "addAnalyzer.h"
 #include "equAnalyzer.h"
 #include "plusAnalyzer.h"
+#include "fiveAnalyzer.h"
+#include "powAnalyzer.h"
 
 using namespace Util;
 using namespace DebugUtil;
@@ -66,6 +68,7 @@ Stroke Recognizer::StrokeClassifier::addStroke(list <Point> original_points) {
     writingStroke.direction.rightTop = cfg["rtop"].GetBool();
     writingStroke.direction.validHeight = cfg["validHeight"].GetBool();
     writingStroke.direction.validWidth = cfg["validWidth"].GetBool();
+    writingStroke.recognizeCharacter = cfg["val"].GetString();
 
     StrokeSet strokeSet;
     strokeSet.id = std::rand();
@@ -74,6 +77,8 @@ Stroke Recognizer::StrokeClassifier::addStroke(list <Point> original_points) {
     strokeSet.centerPt = writingStroke.centerPt;
     strokeSet.strokeSetType = NORMAL_STROKE_SET;
     strokeSet.recognizeResult = writingStroke.single_stroke_recognize_result;
+    strokeSet.direction = writingStroke.direction;
+    strokeSet.recognizeCharacter = writingStroke.recognizeCharacter;
     this->strokes.push_back(writingStroke);
     this->stroke_set.push_back(strokeSet);
 
@@ -84,13 +89,20 @@ Stroke Recognizer::StrokeClassifier::addStroke(list <Point> original_points) {
 
     return writingStroke;
 }
-
+bool sortFN(StrokeSet strokeSet1,StrokeSet strokeSet2){
+    return strokeSet1.centerPt.x<strokeSet2.centerPt.x;
+}
 void Recognizer::StrokeClassifier::getStrokeSet() {
+    this->getFiveStrokeSets();
     this->getPlusStrokeSets();
     this->getEquStrokeSets();
     this->getAddStrokeSets();
+    this->getPowStrokeSets();
+    this->getStrokeSetsByFractionBar();
+    this->stroke_set.sort(sortFN);
     showStrokeSets(this->stroke_set);
-    list <StrokeSet> strokeSets = this->getStrokeSetsByFractionBar();
+
+//    showStrokeSets(this->stroke_set);
 }
 
 bool sortFractionStrokeSetByWidth(StrokeSet first, StrokeSet second) {
@@ -115,6 +127,16 @@ void Recognizer::StrokeClassifier::getPlusStrokeSets() {
     PlusAnalyzer plusAnalyzer(this->stroke_set);
     this->stroke_set = plusAnalyzer.outputStrokeSets;
 //    showStrokeSets(this->stroke_set);
+}
+
+void Recognizer::StrokeClassifier::getFiveStrokeSets() {
+    FiveAnalyzer fiveAnalyzer(this->stroke_set);
+    this->stroke_set = fiveAnalyzer.outputStrokeSets;
+}
+
+void Recognizer::StrokeClassifier::getPowStrokeSets() {
+    PowAnalyzer powAnalyzer(this->stroke_set);
+    this->stroke_set = powAnalyzer.outputStrokeSets;
 }
 
 list <StrokeSet> Recognizer::StrokeClassifier::getStrokeSetsByFractionBar() {
@@ -168,6 +190,7 @@ list <StrokeSet> Recognizer::StrokeClassifier::getStrokeSetsByFractionBar() {
         cout << "strokeClassifier::getStrokeSetsByFractionBar rest stroke size:->"
              << fractionAnalyzer.restStrokeSets.size() << endl;
     }
+    this->stroke_set = this->restStrokeSets;
     return fractionBarStrokeSets;
 }
 

@@ -60,6 +60,7 @@ bool PlusAnalyzer::findPlusStrokeSetsIteration() {
     if (found) {
         this->calculateOuterBoxAndCenterPt(strokeSet1, strokeSet2);
         plusStrokeSet.recognizeResult = PLUS_LABEL;
+        plusStrokeSet.recognizeCharacter = "+";
         plusStrokeSet.strokeSetType = PLUS_STROKE_SET;
         plusStrokeSet.strokes.push_back(strokeSet1.strokes.front());
         plusStrokeSet.strokes.push_back(strokeSet2.strokes.front());

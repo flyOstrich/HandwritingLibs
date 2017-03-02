@@ -20,6 +20,12 @@ namespace Recognizer {
         //识别乘号
         void getPlusStrokeSets();
 
+        //识别5
+        void getFiveStrokeSets();
+
+        //识别乘幂
+        void getPowStrokeSets();
+
     public:
         //笔画与笔画之间的方位关系
         //共分为8种

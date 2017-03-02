@@ -48,7 +48,7 @@ bool FractionAnalyzer::findTopAndBottomStrokeSet() {
     list <StrokeSet> xAxisSatisfiedStrokeSets;
     for (auto it = this->restStrokeSets.cbegin(); it != this->restStrokeSets.cend(); ++it) {
         strokeSet = *it;
-        if ((strokeSet.strokeSetType == NORMAL_STROKE_SET||strokeSet.strokeSetType==ADD_EXP_STROKE_SET) &&
+        if ((strokeSet.strokeSetType == NORMAL_STROKE_SET || strokeSet.strokeSetType == ADD_EXP_STROKE_SET) &&
             strokeSet.centerPt.x >= fractionStrokeSet.main_part_border.x &&
             strokeSet.centerPt.x <= fractionStrokeSet.main_part_border.x + fractionStrokeSet.main_part_border.width) {
             strokeSet.isFractionBarFlag = false;
@@ -88,6 +88,7 @@ bool FractionAnalyzer::findTopAndBottomStrokeSet() {
     cout << "yAxisTopSatisfiedStrokeSets size->" << yAxisTopSatisfiedStrokeSets.size() << endl;
     cout << "yAxisBottomSatisfiedStrokeSets size->" << yAxisBottomSatisfiedStrokeSets.size() << endl;
     //third.找出分数线上方包围盒y轴相交的所有笔画，加入分子笔画集合
+    string topRecognizeCharacter = "";
     StrokeSet yAxisTopFirstStrokeSet;
     Rect tYRect;
     int topMaxLineHeight;
@@ -119,6 +120,7 @@ bool FractionAnalyzer::findTopAndBottomStrokeSet() {
         if (std::abs(frontStrokeSet.centerPt.y - this->fractionStrokeSet.centerPt.y) <=
             topMaxLineHeight * this->avgStrokeHeight * 2) {
             this->topStrokeSets.push_back(frontStrokeSet);
+            topRecognizeCharacter += frontStrokeSet.recognizeCharacter;
             topFound = true;
         } else {
             if (frontStrokeSet.strokeSetType != FRACTION_BAR_STROKE_SET) {
@@ -128,6 +130,7 @@ bool FractionAnalyzer::findTopAndBottomStrokeSet() {
         yAxisTopSatisfiedStrokeSets.pop_front();
     }
     //fourth.找出分数线下方包围盒y轴相交的所有笔画，加入分母笔画集合
+    string bottomRecognizeCharacter = "";
     StrokeSet yAxisBottomFirstStrokeSet;
     int bottomMaxLineHeight;
     idx = 0;
@@ -156,6 +159,7 @@ bool FractionAnalyzer::findTopAndBottomStrokeSet() {
         if (std::abs(frontStrokeSet.centerPt.y - this->fractionStrokeSet.centerPt.y) <=
             bottomMaxLineHeight * this->avgStrokeHeight * 2) {
             this->bottomStrokeSets.push_back(frontStrokeSet);
+            bottomRecognizeCharacter += frontStrokeSet.recognizeCharacter;
             bottomFound = true;
         } else {
             if (frontStrokeSet.strokeSetType != FRACTION_BAR_STROKE_SET) {
@@ -169,6 +173,8 @@ bool FractionAnalyzer::findTopAndBottomStrokeSet() {
         this->restStrokeSets = rStrokeSets;
         this->fractionStrokeSet.top = this->topStrokeSets;
         this->fractionStrokeSet.bottom = this->bottomStrokeSets;
+        this->fractionStrokeSet.recognizeCharacter =
+                "frac{" + topRecognizeCharacter + "}{" + bottomRecognizeCharacter + "}";
         this->fractionStrokeSet.strokeSetType = FRACTION_EXP_STROKE_SET;
         this->fractionStrokeSet.lineHeight = this->getFractionLineHeight();
         this->mergeStrokesAndReCalculateMainPartBorder();

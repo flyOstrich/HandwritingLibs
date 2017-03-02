@@ -63,6 +63,7 @@ bool EquAnalyzer::findEquationStrokeSetsIteration() {
     }
     if (found) {
         equStrokeSet.recognizeResult = EQUATION_LABEL;
+        equStrokeSet.recognizeCharacter="=";
         equStrokeSet.strokeSetType = EQUATION_STROKE_SET;
         equStrokeSet.strokes.push_back(strokeSet1.strokes.front());
         equStrokeSet.strokes.push_back(strokeSet2.strokes.front());

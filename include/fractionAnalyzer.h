@@ -32,6 +32,10 @@ public:
      */
     int getFractionLineHeight();
 
+    /**
+     * 找出所有的分数线
+     */
+    void findFractionStrokeSets();
 
     FractionAnalyzer(list <StrokeSet> strokeSets,
                      list <StrokeSet> fractionStrokeSets,

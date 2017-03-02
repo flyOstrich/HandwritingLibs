@@ -34,11 +34,10 @@ void draw_and_recognize() {
         list <Point> stroke_points = JsonUtil::getPointListFromJsonString(s);
         recognizer.pushStroke(stroke_points, "aaaaa" + idx);
     }
-    recognizer.recognize();
-    Mat final = recognizer.combineStrokeMat(recognizer.strokes);
-    imshow("result", final);
-    waitKey(0);
-//    cv::ml::RTrees::Flags::PREDICT_SUM
+//    recognizer.recognize();
+//    Mat final = recognizer.combineStrokeMat(recognizer.strokes);
+//    imshow("result", final);
+//    waitKey(0);
 }
 
 
@@ -74,12 +73,12 @@ void testStrokeClassifier() {
         classifier.addStroke(stroke_points);
     }
     classifier.getStrokeSet();
-    DebugUtil::showFractions(classifier.restStrokeSets);
+//    DebugUtil::showFractions(classifier.stroke_set);
 }
 
 int main() {
-    train();
+//    train();
     draw_and_recognize();
-//    testStrokeClassifier();
+    testStrokeClassifier();
     return 0;
 }

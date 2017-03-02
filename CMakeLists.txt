@@ -24,7 +24,7 @@ set(SOURCE_FILES main.cpp
                  modules/painter/painter.cpp
                  modules/trainer/trainer.cpp
                  modules/android-interface.cpp
-                 modules/file_util/file-util.cpp modules/stroke_classifier/strokeClassifier.cpp modules/character_recognizer/character_recognizer.cpp modules/stroke_classifier/fractionAnalyzer.cpp modules/debugUtil.cpp modules/stroke_classifier/util.hpp modules/stroke_classifier/addAnalyzer.cpp modules/stroke_classifier/equAnalyzer.cpp include/plusAnalyzer.h modules/stroke_classifier/plusAnalyzer.cpp modules/stroke_classifier/fiveAnalyzer.cpp)
+                 modules/file_util/file-util.cpp modules/stroke_classifier/strokeClassifier.cpp modules/character_recognizer/character_recognizer.cpp modules/stroke_classifier/fractionAnalyzer.cpp modules/debugUtil.cpp modules/stroke_classifier/util.hpp modules/stroke_classifier/addAnalyzer.cpp modules/stroke_classifier/equAnalyzer.cpp include/plusAnalyzer.h modules/stroke_classifier/plusAnalyzer.cpp modules/stroke_classifier/fiveAnalyzer.cpp modules/stroke_classifier/fracAnalyzer.cpp modules/stroke_classifier/powAnalyzer.cpp modules/stroke_classifier/rowAnalyzer.cpp)
 message("${CMAKE_SYSTEM_NAME}")
 
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")

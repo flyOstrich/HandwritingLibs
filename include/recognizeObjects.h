@@ -39,6 +39,8 @@ struct Stroke {
     int single_stroke_recognize_result;
     //笔画字符的方位信息
     Direction direction;
+    //
+    string recognizeCharacter;
 };
 
 struct StrokeSet {
@@ -52,6 +54,7 @@ struct StrokeSet {
     StrokeSetType strokeSetType;
     bool isFractionBarFlag = true;
     int recognizeResult = -1; //识别结果，-1表示还未识别
+    string recognizeCharacter;
     /*
      * 判断识别结果是否为数字
      */
@@ -63,6 +66,7 @@ struct StrokeSet {
         return recognizeResult == 11 && isFractionBarFlag;
     }
 
+    Direction direction;
     list <StrokeSet> top;
     list <StrokeSet> bottom;
     list <StrokeSet> left;

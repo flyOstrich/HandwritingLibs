@@ -64,6 +64,7 @@ bool AddAnalyzer::findPlusByHorizontalAndVerticalStrokeSetsIteration() {
     }
     if (found) {
         addStrokeSet.recognizeResult = ADD_LABEL;
+        addStrokeSet.recognizeCharacter = "+";
         addStrokeSet.strokeSetType = ADD_EXP_STROKE_SET;
         addStrokeSet.strokes.push_back(strokeSet1.strokes.front());
         addStrokeSet.strokes.push_back(strokeSet2.strokes.front());

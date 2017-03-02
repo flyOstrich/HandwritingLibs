@@ -164,6 +164,7 @@ void DebugUtil::drawBorderForStroke(Stroke stroke, Rect border) {
 void DebugUtil::showStrokeSets(list <StrokeSet> strokeSets) {
     for (auto it = strokeSets.cbegin(); it != strokeSets.cend(); ++it) {
         StrokeSet strokeSet = *it;
+        cout<<strokeSet.recognizeCharacter;
         imshow("DebugUtil::showStrokeSets", combineStrokeMat(strokeSet.strokes, Size(400, 400)));
         waitKey(0);
     }
