@@ -1,4 +1,5 @@
 #pragma once
+
 #include "recognizeObjects.h"
 #include "recognizer.h"
 
@@ -26,6 +27,20 @@ namespace Recognizer {
         //识别乘幂
         void getPowStrokeSets();
 
+        //识别分数
+        void getFractions();
+
+        //迭代识别
+        void recognizeIteration();
+
+        std::pair<std::list<StrokeSet>, std::list<StrokeSet> > getRowIteration(list <StrokeSet> strokeSets);
+
+        string combineRes(list <StrokeSet> strokeSets);
+
+        static bool sortStrokeByX(StrokeSet first, StrokeSet second);
+
+        static bool sortRow(list <StrokeSet> first, list <StrokeSet> second);
+
     public:
         //笔画与笔画之间的方位关系
         //共分为8种
@@ -40,6 +55,8 @@ namespace Recognizer {
             POSITION_RIGHT,
             POSITION_LEFT
         };
+
+        static bool sortFractionStrokeSetByWidth(StrokeSet first, StrokeSet second);
 
         StrokeClassifier();
 
@@ -87,20 +104,10 @@ namespace Recognizer {
         *************************************************/
         void getStrokeSet();
 
-        /*************************************************
-        Function:       getPosition
-        Description:    计算secondStroke相对于firstStroke的位置关系
-        Input:          firstStroke
-        Input:          secondStroke
-        Return:         位置关系
-       *************************************************/
-        Position getPosition(Stroke firstStroke, Stroke secondStroke);
 
-        /*************************************************
-          Function:       detectRectIntersect
-          Description:    计算两个矩形是否相交
-        *************************************************/
-        bool detectRectIntersect(Rect rect1, Rect rect2);
+        list <list<StrokeSet>> getRows();
+
+        string getResult();
 
     };
 }

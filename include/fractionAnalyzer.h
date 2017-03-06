@@ -36,7 +36,7 @@ public:
      * 找出所有的分数线
      */
     void findFractionStrokeSets();
-
+    static  bool detectRectYAxisIntersect(Rect rect1, Rect rect2);
     FractionAnalyzer(list <StrokeSet> strokeSets,
                      list <StrokeSet> fractionStrokeSets,
                      StrokeSet fractionStrokeSet,

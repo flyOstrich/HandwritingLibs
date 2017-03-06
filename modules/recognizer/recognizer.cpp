@@ -272,19 +272,6 @@ list <list<string>> Recognizer::SymbolRecognizer::recognize() {
     return rt;
 }
 
-list <Point>
-Recognizer::SymbolRecognizer::resizeOriginalPoints(list <Point> original_points, Size original_size, Size target_size) {
-    float scaleX = (float) target_size.width / original_size.width;
-    float scaleY = (float) target_size.height / original_size.height;
-    list <Point> rt;
-    for (auto it = original_points.cbegin(); it != original_points.cend(); ++it) {
-        Point pt = *it;
-        float targetX = std::round(pt.x * scaleX);
-        float targetY = std::round(pt.y * scaleY);
-        rt.push_front(Point(targetX, targetY));
-    }
-    return rt;
-}
 
 void Recognizer::SymbolRecognizer::saveSplitImage(Mat image, string label) {
     vector<string> files;

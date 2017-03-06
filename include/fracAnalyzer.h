@@ -5,25 +5,30 @@
 class FracAnalyzer {
 private:
     list <StrokeSet> inputStrokesSets;
-    list <StrokeSet> fractionBarStrokesSets;
-    list <StrokeSet> restStrokeSets;
-    float avgStrokeHeight;
 
     void analyze();
 
-    void findFractionBarStrokeSets();
+    bool findLongestFractionBarStrokeSet(StrokeSet *strokeSet);
 
-    void findFractionStrokeSets();
+    StrokeSet findFractionStrokeSets(StrokeSet fractionBarStrokeSet);
 
-    bool findFractionStrokeSetsIteration(StrokeSet fractionBarStrokeSet);
 
     bool
     isFractionStrokeSetAndFractionBarStrokeSetIntersect(StrokeSet fractionStrokeSet, StrokeSet fractionBarStrokeSet);
 
     int getFractionLineHeight(StrokeSet fractionStrokeSet);
 
+    void mergeStrokesAndReCalculateMainPartBorder(StrokeSet *fractionStrokeSet);
+
 public:
     list <StrokeSet> outputStrokesSets;
 
-    FracAnalyzer(list <StrokeSet> inputStrokesSets, float avgStrokeHeight);
+    FracAnalyzer(list <StrokeSet> inputStrokesSets);
+
+    static bool sortFractionStrokeSetByWidth(StrokeSet first, StrokeSet second);
+
+    static bool sortTopFractionStrokes(StrokeSet first, StrokeSet second);
+
+    static bool sortBottomFractionStrokes(StrokeSet first, StrokeSet second);
+
 };

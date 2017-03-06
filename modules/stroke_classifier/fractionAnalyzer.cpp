@@ -32,7 +32,7 @@ bool isFractionStrokeSetAndFractionBarStrokeSetIntersect(StrokeSet fractionStrok
                   >= fractionBarStrokeSet.main_part_border.x);
 }
 
-bool detectRectYAxisIntersect(Rect rect1, Rect rect2) {
+bool FractionAnalyzer::detectRectYAxisIntersect(Rect rect1, Rect rect2) {
     if (rect1.y > rect2.y + rect2.height)return false;
     if (rect1.y + rect1.height < rect2.y)return false;
     return true;
@@ -105,7 +105,7 @@ bool FractionAnalyzer::findTopAndBottomStrokeSet() {
             cout << "top nearest is fraction bar!" << endl;
             break;
         };
-        if (!detectRectYAxisIntersect(tYRect, frontStrokeSet.main_part_border)) {
+        if (!FractionAnalyzer::detectRectYAxisIntersect(tYRect, frontStrokeSet.main_part_border)) {
             rStrokeSets.push_back(frontStrokeSet);
             cout << "top item is not interset!" << endl;
             break;
@@ -145,7 +145,7 @@ bool FractionAnalyzer::findTopAndBottomStrokeSet() {
             cout << "bottom nearest is fraction bar!" << endl;
             break;
         };
-        if (!detectRectYAxisIntersect(tYRect, frontStrokeSet.main_part_border)) {
+        if (!FractionAnalyzer::detectRectYAxisIntersect(tYRect, frontStrokeSet.main_part_border)) {
             rStrokeSets.push_back(frontStrokeSet);
             cout << "top item is not interset!" << endl;
             break;

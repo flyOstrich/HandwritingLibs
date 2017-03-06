@@ -53,16 +53,6 @@ namespace Recognizer {
         void saveSplitImage(Mat image, string label);
 
         /*************************************************
-          Function:       getCategories
-          Description:    对canvas上的原始点进行缩放
-          Input:          original_points  原始点列表
-          Input:          original_size  原始点阵的大小
-          Input:          target_size    目标点阵大小
-          Return:         缩放后的点列表
-          *************************************************/
-        list <Point> resizeOriginalPoints(list <Point> original_points, Size original_size, Size target_size);
-
-        /*************************************************
              Function:       combineStrokeMat
              Description:    合并笔画数据,并生成合并后的图像矩阵
                              合并后的图像矩阵大小为能包围所有笔画的最小外界矩形的大小

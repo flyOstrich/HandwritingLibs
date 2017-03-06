@@ -5,15 +5,18 @@
 #include <fstream>
 #include "type-util.h"
 #include "debugUtil.h"
+#include "util.hpp"
 #include "fractionAnalyzer.h"
 #include "addAnalyzer.h"
 #include "equAnalyzer.h"
 #include "plusAnalyzer.h"
 #include "fiveAnalyzer.h"
 #include "powAnalyzer.h"
+#include "fracAnalyzer.h"
 
 using namespace Util;
 using namespace DebugUtil;
+using namespace std;
 
 Recognizer::StrokeClassifier::StrokeClassifier() {
 
@@ -55,6 +58,7 @@ Stroke Recognizer::StrokeClassifier::addStroke(list <Point> original_points) {
     writingStroke.single_stroke_recognize_result = this->symbol_recognizer->recognizeSingleStroke(
             writingStroke);
 
+
     Document document;
     document.Parse(this->label_character_map.c_str());
     Value label_character_m = document.GetObject();
@@ -75,7 +79,9 @@ Stroke Recognizer::StrokeClassifier::addStroke(list <Point> original_points) {
     strokeSet.main_part_border = writingStroke.main_part_border;
     strokeSet.strokes.push_front(writingStroke);
     strokeSet.centerPt = writingStroke.centerPt;
-    strokeSet.strokeSetType = NORMAL_STROKE_SET;
+    strokeSet.strokeSetType = writingStroke.single_stroke_recognize_result
+                              == MINUS_OR_FRACTION_BAR_LABEL ? FRACTION_BAR_STROKE_SET
+                                                             : NORMAL_STROKE_SET;
     strokeSet.recognizeResult = writingStroke.single_stroke_recognize_result;
     strokeSet.direction = writingStroke.direction;
     strokeSet.recognizeCharacter = writingStroke.recognizeCharacter;
@@ -89,23 +95,71 @@ Stroke Recognizer::StrokeClassifier::addStroke(list <Point> original_points) {
 
     return writingStroke;
 }
-bool sortFN(StrokeSet strokeSet1,StrokeSet strokeSet2){
-    return strokeSet1.centerPt.x<strokeSet2.centerPt.x;
+
+bool sortFN(StrokeSet strokeSet1, StrokeSet strokeSet2) {
+    return strokeSet1.centerPt.x < strokeSet2.centerPt.x;
 }
+
 void Recognizer::StrokeClassifier::getStrokeSet() {
     this->getFiveStrokeSets();
+    cout << "after find five" << this->stroke_set.size() << endl;
     this->getPlusStrokeSets();
+    cout << "after find plus" << this->stroke_set.size() << endl;
     this->getEquStrokeSets();
+    cout << "after find equ" << this->stroke_set.size() << endl;
     this->getAddStrokeSets();
+    cout << "after find add" << this->stroke_set.size() << endl;
+    this->getFractions();
+    cout << "after find frac" << this->stroke_set.size() << endl;
+//    this->getStrokeSetsByFractionBar();
     this->getPowStrokeSets();
-    this->getStrokeSetsByFractionBar();
-    this->stroke_set.sort(sortFN);
-    showStrokeSets(this->stroke_set);
+    this->recognizeIteration();
+//    this->stroke_set.sort(sortFN);
+//    showStrokeSets(this->stroke_set);
+
 
 //    showStrokeSets(this->stroke_set);
 }
 
-bool sortFractionStrokeSetByWidth(StrokeSet first, StrokeSet second) {
+void Recognizer::StrokeClassifier::recognizeIteration() {
+    list <StrokeSet> nextStrokeSet;
+    while (!this->stroke_set.empty()) {
+        StrokeSet strokeSet = this->stroke_set.front();
+        if (strokeSet.strokeSetType == FRACTION_EXP_STROKE_SET) {
+            StrokeClassifier classifier(this->canvas_size);
+            classifier.stroke_set = strokeSet.top;
+            classifier.getStrokeSet();
+            string topRes = this->combineRes(classifier.stroke_set);
+            strokeSet.top = classifier.stroke_set;
+            classifier.stroke_set = strokeSet.bottom;
+            classifier.getStrokeSet();
+            string bottomRes = this->combineRes(classifier.stroke_set);
+            strokeSet.recognizeCharacter = "\\frac{" + topRes + "}{" + bottomRes + "}";
+            strokeSet.bottom = classifier.stroke_set;
+        }
+        nextStrokeSet.push_back(strokeSet);
+        this->stroke_set.pop_front();
+    }
+    this->stroke_set = nextStrokeSet;
+}
+
+string Recognizer::StrokeClassifier::combineRes(list <StrokeSet> strokeSets) {
+    strokeSets.sort(Recognizer::StrokeClassifier::sortStrokeByX);
+    string res = "";
+    while (!strokeSets.empty()) {
+        StrokeSet front = strokeSets.front();
+        res += front.recognizeCharacter;
+        strokeSets.pop_front();
+    }
+    return res;
+}
+
+void Recognizer::StrokeClassifier::getFractions() {
+    FracAnalyzer fracAnalyzer(this->stroke_set);
+    this->stroke_set = fracAnalyzer.outputStrokesSets;
+}
+
+bool Recognizer::StrokeClassifier::sortFractionStrokeSetByWidth(StrokeSet first, StrokeSet second) {
     return first.main_part_border.width < second.main_part_border.width;
 }
 
@@ -156,7 +210,7 @@ list <StrokeSet> Recognizer::StrokeClassifier::getStrokeSetsByFractionBar() {
             restStrokeSets.push_back(strokeSet);
         }
     }
-    fractionBarStrokeSets.sort(sortFractionStrokeSetByWidth);
+    fractionBarStrokeSets.sort(Recognizer::StrokeClassifier::sortFractionStrokeSetByWidth);
     this->restStrokeSets = restStrokeSets;
     cout << "faction bar sets size->" << fractionBarStrokeSets.size() << endl;
     cout << "rest stroke sets size->" << restStrokeSets.size() << endl;
@@ -221,28 +275,76 @@ void Recognizer::StrokeClassifier::calculateAvgStrokeWidthHeight() {
     }
 }
 
-/*************************************************
-  Function:       getPosition
-  Description:    计算secondStroke相对于firstStroke的位置关系
-  Input:          firstStroke
-  Input:          secondStroke
-  Return:         位置关系
-*************************************************/
-Recognizer::StrokeClassifier::Position Recognizer::StrokeClassifier::getPosition(Stroke firstStroke,
-                                                                                 Stroke secondStroke) {
-    Point firstCenterPt = firstStroke.centerPt;
-    Point secondCenterPt = secondStroke.centerPt;
-
+string Recognizer::StrokeClassifier::getResult() {
+    list <list<StrokeSet>> rows = this->getRows();
+    cout << "row size->" << rows.size() << endl;
+    string res = "";
+    while (!rows.empty()) {
+        list <StrokeSet> row = rows.front();
+        string rowRes = "";
+        while (!row.empty()) {
+            StrokeSet rowItem = row.front();
+            rowRes += rowItem.recognizeCharacter;
+            row.pop_front();
+        }
+        res += rowRes + "\n";
+        rows.pop_front();
+    }
+    return res;
 }
 
-/*************************************************
-  Function:       detectRectIntersect
-  Description:    计算两个矩形是否相交
-*************************************************/
-bool Recognizer::StrokeClassifier::detectRectIntersect(Rect rect1, Rect rect2) {
-    if (rect1.x > rect2.x + rect2.width) { return false; }
-    if (rect1.x + rect1.width < rect2.x) { return false; }
-    return true;
+list <list<StrokeSet>> Recognizer::StrokeClassifier::getRows() {
+    this->stroke_set.sort(Recognizer::StrokeClassifier::sortStrokeByX);
+    list <StrokeSet> strokeSets = this->stroke_set;
+    list <list<StrokeSet>> rt;
+    while (strokeSets.size() > 0) {
+        std::pair<std::list<StrokeSet>, std::list<StrokeSet> > rowStrokeSets = this->getRowIteration(strokeSets);
+        rt.push_back(rowStrokeSets.first);
+        strokeSets = rowStrokeSets.second;
+    }
+    rt.sort(Recognizer::StrokeClassifier::sortRow);
+    return rt;
 }
+
+std::pair<std::list<StrokeSet>, std::list<StrokeSet> > Recognizer::StrokeClassifier::getRowIteration(
+        list <StrokeSet> strokeSets) {
+    list <StrokeSet> recognizedStrokeSets;
+    list <StrokeSet> restStrokeSets;
+    std::pair<std::list<StrokeSet>, std::list<StrokeSet> > rt;
+    StrokeSet first = strokeSets.front();
+    strokeSets.pop_front();
+    recognizedStrokeSets.push_back(first);
+    Rect yBorder = first.main_part_border;
+    while (!strokeSets.empty()) {
+        StrokeSet front = strokeSets.front();
+        if (detectRectYAxisIntersect(front.main_part_border, yBorder)) {
+            recognizedStrokeSets.push_back(front);
+            int y = min(yBorder.y, front.main_part_border.y);
+            int height = max(yBorder.y + yBorder.height, front.main_part_border.y + front.main_part_border.height) -
+                         yBorder.y;
+            yBorder.y = y;
+            yBorder.height = height;
+        } else {
+            restStrokeSets.push_back(front);
+        }
+        strokeSets.pop_front();
+    }
+    recognizedStrokeSets.sort(Recognizer::StrokeClassifier::sortStrokeByX);
+    rt.first = recognizedStrokeSets;
+    rt.second = restStrokeSets;
+    return rt;
+}
+
+bool Recognizer::StrokeClassifier::sortStrokeByX(StrokeSet first, StrokeSet second) {
+    return first.main_part_border.x < second.main_part_border.x;
+}
+
+bool Recognizer::StrokeClassifier::sortRow(list <StrokeSet> first, list <StrokeSet> second) {
+    return first.front().main_part_border.y < second.front().main_part_border.y;
+}
+
+
+
+
 
 

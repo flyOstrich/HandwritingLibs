@@ -73,6 +73,8 @@ void testStrokeClassifier() {
         classifier.addStroke(stroke_points);
     }
     classifier.getStrokeSet();
+    cout<<"size---->"<<classifier.getResult()<<endl;
+//    DebugUtil::showStrokeSets(classifier.stroke_set);
 //    DebugUtil::showFractions(classifier.stroke_set);
 }
 
@@ -80,5 +82,6 @@ int main() {
 //    train();
     draw_and_recognize();
     testStrokeClassifier();
+
     return 0;
 }

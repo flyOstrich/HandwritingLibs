@@ -7,7 +7,7 @@ PowAnalyzer::PowAnalyzer(list <StrokeSet> inputStrokeSets) {
 
 void PowAnalyzer::analyze() {
     this->findHasSuperscriptsStrokeSets();
-    cout<<"hasSuperscriptsStrokeSets->"<<this->hasSuperscriptsStrokeSets.size()<<endl;
+    cout << "hasSuperscriptsStrokeSets->" << this->hasSuperscriptsStrokeSets.size() << endl;
     this->findPowExpStrokeSets();
 }
 
@@ -49,14 +49,26 @@ bool PowAnalyzer::findPowExpStrokeSetsIteration() {
                 iteration2 = it2;
                 if (criteria == 1) {
                     powStrokeSet.topRight.push_back(strokeSet2);
-                    powStrokeSet.centerPt=strokeSet1.centerPt;
-                    powStrokeSet.recognizeCharacter=strokeSet1.recognizeCharacter+"^"+strokeSet2.recognizeCharacter;
+                    powStrokeSet.centerPt = strokeSet1.centerPt;
+                    powStrokeSet.recognizeCharacter =
+                            strokeSet1.recognizeCharacter + "^" + strokeSet2.recognizeCharacter;
                 }
                 if (criteria == 2) {
                     powStrokeSet.topRight.push_back(strokeSet1);
-                    powStrokeSet.centerPt=strokeSet2.centerPt;
-                    powStrokeSet.recognizeCharacter=strokeSet2.recognizeCharacter+"^"+strokeSet1.recognizeCharacter;
+                    powStrokeSet.centerPt = strokeSet2.centerPt;
+                    powStrokeSet.recognizeCharacter =
+                            strokeSet2.recognizeCharacter + "^" + strokeSet1.recognizeCharacter;
                 }
+                int minX = min(strokeSet1.main_part_border.x, strokeSet2.main_part_border.x);
+                int minY = min(strokeSet1.main_part_border.y, strokeSet2.main_part_border.y);
+                int maxX = max(strokeSet1.main_part_border.x + strokeSet1.main_part_border.width,
+                               strokeSet2.main_part_border.x + strokeSet2.main_part_border.width);
+                int maxY = max(strokeSet1.main_part_border.y + strokeSet1.main_part_border.height,
+                               strokeSet2.main_part_border.y + strokeSet2.main_part_border.height);
+                Rect outerBox(minX,minY,maxX-minX,maxY-minY);
+                Point centerPt(outerBox.x+outerBox.width/2,outerBox.y+outerBox.height/2);
+                powStrokeSet.main_part_border=outerBox;
+                powStrokeSet.centerPt=centerPt;
                 break;
             }
         }
@@ -64,7 +76,7 @@ bool PowAnalyzer::findPowExpStrokeSetsIteration() {
     }
     if (found) {
 //        powStrokeSet.recognizeResult = EQUATION_LABEL;
-        powStrokeSet.strokeSetType = EQUATION_STROKE_SET;
+        powStrokeSet.strokeSetType = POW_STROKE_SET;
         powStrokeSet.strokes.push_back(strokeSet1.strokes.front());
         powStrokeSet.strokes.push_back(strokeSet2.strokes.front());
 //        this->calculateOuterBoxAndCenterPt(&plusStrokeSet);
@@ -84,11 +96,11 @@ int PowAnalyzer::isSatisfyingPowCriteria(StrokeSet strokeSet1, StrokeSet strokeS
     Point c2 = strokeSet2.centerPt;
     Point leftBottomR1(r1.x, r1.y + r1.height);
     Point leftBottomR2(r2.x, r2.y + r2.height);
-    if (leftBottomR1.x > c2.x && leftBottomR1.x < r2.x + r2.width*1.5 && leftBottomR1.y < c2.y &&
-        leftBottomR1.y > r2.y*0.5)
+    if (leftBottomR1.x > c2.x && leftBottomR1.x < r2.x + r2.width * 1.5 && leftBottomR1.y < c2.y &&
+        leftBottomR1.y > r2.y * 0.5)
         return 2;
-    if (leftBottomR2.x > c1.x && leftBottomR2.x < r1.x + r1.width*1.5 && leftBottomR2.y < c1.y &&
-        leftBottomR2.y > r1.y*0.5)
+    if (leftBottomR2.x > c1.x && leftBottomR2.x < r1.x + r1.width * 1.5 && leftBottomR2.y < c1.y &&
+        leftBottomR2.y > r1.y * 0.5)
         return 1;
     return -1;
 }
