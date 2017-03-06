@@ -1,7 +1,7 @@
 #include "strokeClassifier.h"
 #include "mat-util.h"
 #include "image-util.h"
-#include "config.h"
+#include "config.hpp"
 #include <fstream>
 #include "type-util.h"
 #include "debugUtil.h"
@@ -22,10 +22,11 @@ Recognizer::StrokeClassifier::StrokeClassifier() {
 
 }
 
-Recognizer::StrokeClassifier::StrokeClassifier(Size canvas_size) {
+Recognizer::StrokeClassifier::StrokeClassifier(Size canvas_size, string svmModelFile, string labelCharacterMapFile) {
     this->canvas_size = canvas_size;
-    this->symbol_recognizer = new Recognizer::SymbolRecognizer(Size(400, 400), "NONE", "0");
-    ifstream ifs(LABEL_CHARACTER_MAP_FILE);
+    this->symbol_recognizer = new Recognizer::SymbolRecognizer(Size(400, 400), "NONE", "0", svmModelFile,
+                                                               labelCharacterMapFile);
+    ifstream ifs(labelCharacterMapFile);
     string s = "";
     if (ifs.is_open()) {
         int bufLen = 200;

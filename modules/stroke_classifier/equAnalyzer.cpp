@@ -1,5 +1,5 @@
 #include "equAnalyzer.h"
-#include "config.h"
+#include "config.hpp"
 #include "util.hpp"
 
 EquAnalyzer::EquAnalyzer(list <StrokeSet> inputStrokeSets, float avgStrokeHeight) {

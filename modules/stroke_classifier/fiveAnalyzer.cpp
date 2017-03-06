@@ -1,5 +1,5 @@
 #include "fiveAnalyzer.h"
-#include "config.h"
+#include "config.hpp"
 #include "util.hpp"
 
 FiveAnalyzer::FiveAnalyzer(list <StrokeSet> inputStrokeSets) {

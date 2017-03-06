@@ -1,5 +1,5 @@
 #include "addAnalyzer.h"
-#include "config.h"
+#include "config.hpp"
 
 AddAnalyzer::AddAnalyzer(list <StrokeSet> strokeSets) {
     this->inputStrokeSets = strokeSets;

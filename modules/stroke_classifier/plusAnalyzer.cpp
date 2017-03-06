@@ -1,5 +1,5 @@
 #include "plusAnalyzer.h"
-#include "config.h"
+#include "config.hpp"
 #include "util.hpp"
 
 PlusAnalyzer::PlusAnalyzer(list <StrokeSet> inputStrokeSets) {

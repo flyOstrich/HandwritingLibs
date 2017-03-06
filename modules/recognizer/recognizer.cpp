@@ -6,8 +6,7 @@
 #include <fstream>
 #include "mat-util.h"
 #include "image-util.h"
-#include "config.h"
-
+#include "config.hpp"
 
 
 using namespace Util;
@@ -15,14 +14,18 @@ using namespace cv;
 
 Recognizer::SymbolRecognizer::SymbolRecognizer() {};
 
-Recognizer::SymbolRecognizer::SymbolRecognizer(Size canvas_size,string splitImageDir, string label) {
+Recognizer::SymbolRecognizer::SymbolRecognizer(Size canvas_size,
+                                               string splitImageDir,
+                                               string label,
+                                               string svmModelFile,
+                                               string labelCharacterMapFile) {
     Document document;
-    this->svm = ml::StatModel::load<ml::SVM>(SVM_MODEL_FILE);
+    this->svm = ml::StatModel::load<ml::SVM>(svmModelFile);
     this->canvasSize = canvas_size;
     this->label_character_map = "";
     this->splitImageDir = splitImageDir;
     this->label = label;
-    ifstream ifs(LABEL_CHARACTER_MAP_FILE);
+    ifstream ifs(labelCharacterMapFile);
     string s = "";
     if (ifs.is_open()) {
         int bufLen = 200;
@@ -225,7 +228,7 @@ list <list<string>> Recognizer::SymbolRecognizer::recognize() {
     Document document;
     document.Parse(this->label_character_map.c_str());
     Value label_character_m = document.GetObject();
-    cout<<" Recognizer::SymbolRecognizer::recognize"<<endl;
+    cout << " Recognizer::SymbolRecognizer::recognize" << endl;
     list <Stroke> strokes = this->strokes;
     this->clusterAnalyzer.cluster_max_height = this->calculateAvgRowHeight(strokes);
     list <Category> categories = this->clusterAnalyzer.getRecognizeUnitsForCategories(strokes);

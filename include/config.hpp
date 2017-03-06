@@ -1,4 +1,11 @@
+#pragma once
+
 #ifdef OP_WINDOWS
+//Config::stringFile = "D:\\workspace\\HandwritingLibs\\assets\\painter_stroke.txt";
+//Config::svmModelFile = "D:\\workspace\\HandwritingLibs\\assets\\train.yml";
+//Config::labelCharacterMapFile = "D:\\workspace\\HandwritingLibs\\modules\\trainer\\label_character_map.json";
+//Config::trainImageDir = "D:\\workspace\\HandwritingLibs\\modules\\trainer\\train-images";
+//Config::svmTrainImageDir = "D:\\workspace\\HandwritingLibs\\assets\\train-images";
 #define STROKE_FILE "D:\\workspace\\HandwritingLibs\\assets\\painter_stroke.txt"
 #define SVM_MODEL_FILE "D:\\workspace\\HandwritingLibs\\assets\\train.yml"
 #define LABEL_CHARACTER_MAP_FILE "D:\\workspace\\HandwritingLibs\\modules\\trainer\\label_character_map.json"
@@ -30,3 +37,5 @@
 #define PLUS_LABEL 12//乘号
 #define FIRST_OF_FIVE 21//数字“5”的第一笔
 #define FIVE_LABEL 5 //5
+
+

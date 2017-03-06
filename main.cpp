@@ -6,7 +6,7 @@
 #include "painter.h"
 #include "trainer.h"
 #include "file-util.h"
-#include "config.h"
+#include "config.hpp"
 #include "strokeClassifier.h"
 #include "debugUtil.h"
 

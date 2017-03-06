@@ -1,6 +1,7 @@
 #pragma once
 
 #include "recognizeObjects.h"
+#include "config.hpp"
 #include "recognizer.h"
 
 
@@ -60,7 +61,7 @@ namespace Recognizer {
 
         StrokeClassifier();
 
-        StrokeClassifier(Size canvas_size);
+        StrokeClassifier(Size canvas_size,string svmModelFile=SVM_MODEL_FILE,string labelCharacterMapFile=LABEL_CHARACTER_MAP_FILE);
 
         string label_character_map;
 

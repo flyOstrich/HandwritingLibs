@@ -3,6 +3,7 @@
 #include <iostream>
 #include "cluster_analysis.h"
 #include <rapidjson/document.h>
+#include "config.hpp"
 
 using namespace rapidjson;
 
@@ -14,7 +15,11 @@ namespace Recognizer {
     public:
         SymbolRecognizer();
 
-        SymbolRecognizer(Size canvas_size, string splitImageDir = "NONE", string label = "0");
+        SymbolRecognizer(Size canvas_size,
+                         string splitImageDir = "NONE",
+                         string label = "0",
+                         string svmModelFile=SVM_MODEL_FILE,
+                         string labelCharacterMapFile=LABEL_CHARACTER_MAP_FILE);
 
         list <Stroke> strokes;
 
