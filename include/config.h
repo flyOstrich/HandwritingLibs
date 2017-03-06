@@ -12,6 +12,14 @@
 #define TRAIN_IMAGE_DIR "/Users/pjl/HandwritingLibs/modules/trainer/train-images"
 #define SVM_TRAIN_IMAGE_DIR "/Users/pjl/HandwritingLibs/assets/train-images"
 #endif
+#ifdef OP_ANDROID
+#define STROKE_FILE  "/Users/pjl/HandwritingLibs/assets/painter_stroke3.txt"
+#define SVM_MODEL_FILE "/Users/pjl/HandwritingLibs/assets/train.yml"
+#define LABEL_CHARACTER_MAP_FILE "/Users/pjl/HandwritingLibs/modules/trainer/label_character_map.json"
+#define TRAIN_IMAGE_DIR "/Users/pjl/HandwritingLibs/modules/trainer/train-images"
+#define SVM_TRAIN_IMAGE_DIR "/Users/pjl/HandwritingLibs/assets/train-images"
+#endif
+
 
 #define MINUS_OR_FRACTION_BAR_LABEL 11 //减号或者分数线的label
 #define VERTICAL_OR_NUMBER_ONE_LABEL 1//竖线或者数字1的label

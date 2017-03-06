@@ -7,46 +7,49 @@ include_directories("include")
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     message("windows......................")
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}\\cmake\\)
-    set(OpenCV_DIR  D:\\android\\opencv310Custom\\opencv310Custom\\mingw-build\\install)
-endif()
+    set(OpenCV_DIR D:\\android\\opencv310Custom\\opencv310Custom\\mingw-build\\install)
+endif ()
 
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 set(SOURCE_FILES main.cpp
-                 modules/linear_interpolation/linear_interpolation.cpp
-                 modules/mat_util/mat-util.cpp
-                 modules/recognizer/recognizer.cpp
-                 modules/image_util/image-util.cpp
-                 modules/type_util/type-util.cpp
-                 modules/json_util/json_util.cpp
-                 modules/cluster_analysis/cluster_analysis.cpp
-                 modules/painter/painter.cpp
-                 modules/trainer/trainer.cpp
-                 modules/android-interface.cpp
-                 modules/file_util/file-util.cpp
-                 modules/stroke_classifier/strokeClassifier.cpp
-                 modules/character_recognizer/character_recognizer.cpp
-                 modules/stroke_classifier/fractionAnalyzer.cpp
-                 modules/debugUtil.cpp
-                 modules/stroke_classifier/util.hpp
-                 modules/stroke_classifier/addAnalyzer.cpp
-                 modules/stroke_classifier/equAnalyzer.cpp
-                 modules/stroke_classifier/plusAnalyzer.cpp
-                 modules/stroke_classifier/fiveAnalyzer.cpp
-                 modules/stroke_classifier/fracAnalyzer.cpp
-                 modules/stroke_classifier/powAnalyzer.cpp
-                 modules/stroke_classifier/rowAnalyzer.cpp)
+        modules/linear_interpolation/linear_interpolation.cpp
+        modules/mat_util/mat-util.cpp
+        modules/recognizer/recognizer.cpp
+        modules/image_util/image-util.cpp
+        modules/type_util/type-util.cpp
+        modules/json_util/json_util.cpp
+        modules/cluster_analysis/cluster_analysis.cpp
+        modules/painter/painter.cpp
+        modules/trainer/trainer.cpp
+        modules/android-interface.cpp
+        modules/file_util/file-util.cpp
+        modules/stroke_classifier/strokeClassifier.cpp
+        modules/character_recognizer/character_recognizer.cpp
+        modules/stroke_classifier/fractionAnalyzer.cpp
+        modules/debugUtil.cpp
+        modules/stroke_classifier/util.hpp
+        modules/stroke_classifier/addAnalyzer.cpp
+        modules/stroke_classifier/equAnalyzer.cpp
+        modules/stroke_classifier/plusAnalyzer.cpp
+        modules/stroke_classifier/fiveAnalyzer.cpp
+        modules/stroke_classifier/fracAnalyzer.cpp
+        modules/stroke_classifier/powAnalyzer.cpp
+        modules/stroke_classifier/rowAnalyzer.cpp)
 
 message("${CMAKE_SYSTEM_NAME}")
 
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     message("windows......................")
     add_definitions(-DOP_WINDOWS)
-elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
-    message("not windows .................")
+elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    message("darwin .................")
     add_definitions(-DOP_DARWIN)
-endif()
+elseif (CMAKE_SYSTEM_NAME MATCHES "Android")
+    message("android .................")
+    add_definitions(-DOP_ANDROID)
+endif ()
 
 message("source files : ${SOURCE_FILES}")
 add_executable(HandwritingLibs ${SOURCE_FILES})
