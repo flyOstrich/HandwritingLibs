@@ -26,6 +26,8 @@ Recognizer::StrokeClassifier::StrokeClassifier(Size canvas_size, string svmModel
     this->canvas_size = canvas_size;
     this->symbol_recognizer = new Recognizer::SymbolRecognizer(Size(400, 400), "NONE", "0", svmModelFile,
                                                                labelCharacterMapFile);
+    this->svmModelFileAddress = svmModelFile;
+    this->labelCharacterMapFileAddress = labelCharacterMapFile;
     ifstream ifs(labelCharacterMapFile);
     string s = "";
     if (ifs.is_open()) {
@@ -88,6 +90,7 @@ Stroke Recognizer::StrokeClassifier::addStroke(list <Point> original_points) {
     strokeSet.recognizeCharacter = writingStroke.recognizeCharacter;
     this->strokes.push_back(writingStroke);
     this->stroke_set.push_back(strokeSet);
+    this->stroke_set_backup.push_back(strokeSet);
 
     /**********************计算所有笔画的平均高度和宽度*****************************/
     cout << "**********************calculate stroke average width and height*****************************" << endl;
@@ -127,7 +130,7 @@ void Recognizer::StrokeClassifier::recognizeIteration() {
     while (!this->stroke_set.empty()) {
         StrokeSet strokeSet = this->stroke_set.front();
         if (strokeSet.strokeSetType == FRACTION_EXP_STROKE_SET) {
-            StrokeClassifier classifier(this->canvas_size);
+            StrokeClassifier classifier(this->canvas_size,this->svmModelFileAddress,this->labelCharacterMapFileAddress);
             classifier.stroke_set = strokeSet.top;
             classifier.getStrokeSet();
             string topRes = this->combineRes(classifier.stroke_set);

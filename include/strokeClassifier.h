@@ -42,7 +42,15 @@ namespace Recognizer {
 
         static bool sortRow(list <StrokeSet> first, list <StrokeSet> second);
 
+
     public:
+
+        static bool sortFractionStrokeSetByWidth(StrokeSet first, StrokeSet second);
+
+        string svmModelFileAddress;
+
+        string labelCharacterMapFileAddress;
+
         //笔画与笔画之间的方位关系
         //共分为8种
         //上、下、左、右、上右、下右、上左、下左
@@ -57,11 +65,10 @@ namespace Recognizer {
             POSITION_LEFT
         };
 
-        static bool sortFractionStrokeSetByWidth(StrokeSet first, StrokeSet second);
-
         StrokeClassifier();
 
-        StrokeClassifier(Size canvas_size,string svmModelFile=SVM_MODEL_FILE,string labelCharacterMapFile=LABEL_CHARACTER_MAP_FILE);
+        StrokeClassifier(Size canvas_size, string svmModelFile = SVM_MODEL_FILE,
+                         string labelCharacterMapFile = LABEL_CHARACTER_MAP_FILE);
 
         string label_character_map;
 
@@ -70,6 +77,8 @@ namespace Recognizer {
         list <Stroke> strokes;
 
         list <StrokeSet> stroke_set;
+
+        list <StrokeSet> stroke_set_backup;
 
         list <StrokeSet> restStrokeSets;
 
@@ -109,6 +118,7 @@ namespace Recognizer {
         list <list<StrokeSet>> getRows();
 
         string getResult();
+
 
     };
 }
