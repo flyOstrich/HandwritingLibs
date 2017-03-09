@@ -9,8 +9,8 @@ FiveAnalyzer::FiveAnalyzer(list <StrokeSet> inputStrokeSets) {
 
 void FiveAnalyzer::analyze() {
     this->findFistOfFiveAndHorizontalLineStrokeSets();
-    cout<<"first of five->"<<this->firstOfFiveStrokeSets.size()<<endl;
-    cout<<"last of five->"<<this->horizontalLineStrokeSets.size()<<endl;
+    cout << "first of five->" << this->firstOfFiveStrokeSets.size() << endl;
+    cout << "last of five->" << this->horizontalLineStrokeSets.size() << endl;
     this->findFiveStrokeSets();
 }
 
@@ -43,6 +43,9 @@ bool FiveAnalyzer::findFiveStrokeSetsIteration() {
     list<StrokeSet>::iterator iteration;
     list<StrokeSet>::iterator iteration2;
     StrokeSet fiveStrokeSet;
+    fiveStrokeSet.direction.rightTop = true;
+    fiveStrokeSet.direction.validWidth=true;
+    fiveStrokeSet.direction.validHeight=true;
     bool found = false;
     for (list<StrokeSet>::iterator it = this->horizontalLineStrokeSets.begin();
          it != this->horizontalLineStrokeSets.end(); ++it) {
@@ -50,7 +53,7 @@ bool FiveAnalyzer::findFiveStrokeSetsIteration() {
         for (list<StrokeSet>::iterator it2 = this->firstOfFiveStrokeSets.begin();
              it2 != this->firstOfFiveStrokeSets.end() && it2 != it; ++it2) {
             strokeSet2 = *it2;
-            if (this->isSatisfyingTopRightCriteria(strokeSet2,strokeSet1 )) {
+            if (this->isSatisfyingTopRightCriteria(strokeSet2, strokeSet1)) {
                 found = true;
                 iteration = it;
                 iteration2 = it2;
@@ -62,12 +65,13 @@ bool FiveAnalyzer::findFiveStrokeSetsIteration() {
     if (found) {
         this->calculateOuterBoxAndCenterPt(strokeSet1, strokeSet2);
         fiveStrokeSet.recognizeResult = FIVE_LABEL;
-        fiveStrokeSet.recognizeCharacter="5";
+        fiveStrokeSet.recognizeCharacter = "5";
         fiveStrokeSet.strokeSetType = NORMAL_STROKE_SET;
         fiveStrokeSet.strokes.push_back(strokeSet1.strokes.front());
         fiveStrokeSet.strokes.push_back(strokeSet2.strokes.front());
         fiveStrokeSet.main_part_border = this->outerBox;
         fiveStrokeSet.centerPt = this->centerPt;
+
         this->horizontalLineStrokeSets.erase(iteration);
         this->horizontalLineStrokeSets.erase(iteration2);
         this->outputStrokeSets.push_back(fiveStrokeSet);
